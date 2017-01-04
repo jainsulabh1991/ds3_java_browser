@@ -19,8 +19,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +45,8 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter) {
 
         ALERT.setTitle(endpointInfo.getEndpoint());
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
         ALERT.setHeaderText(null);
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;

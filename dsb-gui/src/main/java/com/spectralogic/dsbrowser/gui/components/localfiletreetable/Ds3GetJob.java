@@ -31,6 +31,8 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +75,8 @@ public class Ds3GetJob extends Ds3JobTask {
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.jobInterruptionStore = jobInterruptionStore;
         this.ds3Common = ds3Common;
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
     }
 
     public UUID getJobId() {

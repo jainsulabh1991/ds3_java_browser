@@ -23,4 +23,5 @@ public interface ImageURLs {
     final String FOLDERICON = "/images/folder.png";
     final String FILEICON = "/images/file.png";
     final String CHILDLOADER = "/images/loading.gif";
+    final String DEEPSTORAGEBROWSER = "/images/deep_storage_browser.png";
 }

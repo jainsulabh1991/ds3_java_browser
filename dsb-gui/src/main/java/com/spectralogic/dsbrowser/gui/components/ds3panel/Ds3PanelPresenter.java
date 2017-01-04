@@ -48,6 +48,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,6 +138,8 @@ public class Ds3PanelPresenter implements Initializable {
         try {
             LOG.info("Loading Ds3PanelPresenter");
             ALERT.setTitle("Error");
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             ALERT.setHeaderText(null);
 
             ds3PathIndicator = makeSelectable(ds3PathIndicator);

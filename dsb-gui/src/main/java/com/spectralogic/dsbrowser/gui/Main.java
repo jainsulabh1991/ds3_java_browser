@@ -14,6 +14,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Application;
@@ -48,7 +49,6 @@ public class Main extends Application {
             Alert.AlertType.CONFIRMATION,
             "Are you sure you want to exit?"
     );
-    final Alert alert = new Alert(Alert.AlertType.ERROR);
 
     private final Workers workers = new Workers();
     private JobWorkers jobWorkers = null;
@@ -91,6 +91,10 @@ public class Main extends Application {
         Injector.setModelOrService(JobInterruptionStore.class, jobInterruptionStore);
         Injector.setModelOrService(ResourceBundle.class, resourceBundle);
         Injector.setModelOrService(DataFormat.class, dataFormat);
+
+        final Stage stage = (Stage) CLOSECONFIRMATIONALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
