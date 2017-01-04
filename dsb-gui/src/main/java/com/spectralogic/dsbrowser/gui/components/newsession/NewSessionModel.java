@@ -10,15 +10,23 @@ import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 public class NewSessionModel {
     private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
+
+    {
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+    }
 
     private final StringProperty sessionName = new SimpleStringProperty();
     private final StringProperty endpoint = new SimpleStringProperty();
