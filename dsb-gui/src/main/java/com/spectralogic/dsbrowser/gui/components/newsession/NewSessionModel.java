@@ -23,11 +23,6 @@ import java.net.UnknownHostException;
 public class NewSessionModel {
     private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
 
-    {
-        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-    }
-
     private final StringProperty sessionName = new SimpleStringProperty();
     private final StringProperty endpoint = new SimpleStringProperty();
     private final StringProperty accessKey = new SimpleStringProperty();
@@ -40,7 +35,7 @@ public class NewSessionModel {
     }
 
     public void setEndpoint(final String endpoint) {
-        this.endpoint.set(endpoint);
+        this.endpoint.set(endpoint.trim());
     }
 
     public StringProperty endpointProperty() {
@@ -52,7 +47,7 @@ public class NewSessionModel {
     }
 
     public void setAccessKey(final String accessKey) {
-        this.accessKey.set(accessKey);
+        this.accessKey.set(accessKey.trim());
     }
 
     public StringProperty accessKeyProperty() {
@@ -64,7 +59,7 @@ public class NewSessionModel {
     }
 
     public void setSecretKey(final String secretKey) {
-        this.secretKey.set(secretKey);
+        this.secretKey.set(secretKey.trim());
     }
 
     public StringProperty secretKeyProperty() {
@@ -76,7 +71,7 @@ public class NewSessionModel {
     }
 
     public void setSessionName(final String sessionName) {
-        this.sessionName.set(sessionName);
+        this.sessionName.set(sessionName.trim());
     }
 
     public StringProperty sessionNameProperty() {
@@ -84,7 +79,7 @@ public class NewSessionModel {
     }
 
     public void setPortno(final String portNo) {
-        this.portNo.set(portNo);
+        this.portNo.set(portNo.trim());
     }
 
     public StringProperty portNoProperty() {
@@ -108,23 +103,25 @@ public class NewSessionModel {
     }
 
     public Session toSession() {
-
         ALERT.setHeaderText(null);
         Ds3Client client = null;
         try {
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+
             if (this.getProxyServer() != null && this.getProxyServer().equals("")) {
                 this.setProxyServer(null);
             }
             client = Ds3ClientBuilder
-                    .create(this.getEndpoint() + ":" + this.getPortNo(),
-                            new Credentials(this.getAccessKey(),
-                                    this.getSecretKey()))
+                    .create(this.getEndpoint().trim() + ":" + this.getPortNo().trim(),
+                            new Credentials(this.getAccessKey().trim(),
+                                    this.getSecretKey().trim()))
                     .withHttps(false).withProxy(this.getProxyServer())
                     .build();
 
             final GetSystemInformationSpectraS3Response sysreponse = client.getSystemInformationSpectraS3(new GetSystemInformationSpectraS3Request());
             final GetServiceResponse response = client.getService(new GetServiceRequest());
-            return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
+            return new Session(this.getSessionName().trim(), this.getEndpoint().trim(), this.getPortNo().trim(), this.getProxyServer(), client);
 
 
         } catch (final UnknownHostException e) {
@@ -152,7 +149,7 @@ public class NewSessionModel {
 
             }
         } catch (final Exception e) {
-
+e.printStackTrace();
             if (e instanceof IOException) {
                 ALERT.setTitle("Networking Error");
                 ALERT.setContentText("Encountered a networking error");

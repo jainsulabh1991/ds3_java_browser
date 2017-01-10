@@ -537,8 +537,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                                                         .compare(o1, o2);
                                             }
                                         }
-
-
                                     };
                                     if (ds3TreeTable.getRoot() != null) {
                                         final ImmutableList<TreeItem<Ds3TreeTableValue>> loaderList = ds3TreeTable.getRoot().getChildren().stream().filter(i -> (i.getValue().getType().toString().equals(Ds3TreeTableValue.Type.Loader.toString()))).collect(GuavaCollectors.immutableList());
@@ -813,9 +811,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            final DeleteBucketSpectraS3Response deleteBucketSpectraS3Response = getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getValue().getBucketName()).withForce(true));
+                          getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getValue().getBucketName()).withForce(true));
                             Platform.runLater(() -> {
-                                // deepStorageBrowserPresenter.logText("Delete response code: " + deleteBucketSpectraS3Response.getStatusCode(), LogType.SUCCESS);
                                 deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);
                             });
 
@@ -827,7 +824,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 ALERT.showAndWait();
                             } else {
                                 LOG.error("Failed to delete Bucket" + e);
-                                Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket.", LogType.ERROR));
+                                Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket." + e, LogType.ERROR));
                                 ALERT.setContentText("Failed to delete a bucket");
                                 ALERT.showAndWait();
                             }

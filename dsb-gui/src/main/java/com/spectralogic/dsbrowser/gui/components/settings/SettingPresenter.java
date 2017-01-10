@@ -5,10 +5,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
-import com.spectralogic.dsbrowser.gui.services.settings.FilePropertiesSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.ProcessSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.beans.binding.Bindings;
@@ -64,7 +61,7 @@ public class SettingPresenter implements Initializable {
     private ProcessSettings processSettings;
 
     @FXML
-    private Label performanceLabel;
+    private Label performanceLabel,showCachedJob;
 
     @FXML
     private Label locationSetting;
@@ -100,11 +97,13 @@ public class SettingPresenter implements Initializable {
 
     private FilePropertiesSettings filePropertiesSettings;
 
+    private ShowCachedJobSettings showCachedJobSettings;
+
     @FXML
     private Label enableFileProperties;
 
     @FXML
-    private CheckBox filePropertiesCheckbox;
+    private CheckBox filePropertiesCheckbox,showCachedJobCheckbox;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -113,6 +112,7 @@ public class SettingPresenter implements Initializable {
             this.processSettings = settings.getProcessSettings();
             this.jobSettings = jobPrioritiesStore.getJobSettings();
             this.filePropertiesSettings = settings.getFilePropertiesSettings();
+            this.showCachedJobSettings = settings.getShowCachedJobSettings();
             initGUIElements();
             initPropertyPane();
         } catch (final Throwable e) {
@@ -166,6 +166,17 @@ public class SettingPresenter implements Initializable {
         settings.setProcessSettings(processSettings);
         logService.setLogSettings(logSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
+        LOG.info("Updating showCacheJobs settings");
+        try {
+            if (showCachedJobCheckbox.isSelected()) {
+                settings.setShowCachedJobSettings(true);
+            } else {
+                settings.setShowCachedJobSettings(false);
+            }
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
         closeDialog();
     }
 
@@ -193,6 +204,7 @@ public class SettingPresenter implements Initializable {
         Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
         Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
         Bindings.bindBidirectional(null, filePropertiesSettings.filePropertiesEnableProperty(), new BooleanStringConverter());
+        Bindings.bindBidirectional(null, showCachedJobSettings.filePropertiesEnableProperty(), new BooleanStringConverter());
     }
 
     private void initGUIElements() {
@@ -204,6 +216,7 @@ public class SettingPresenter implements Initializable {
         fileProperties.setText(resourceBundle.getString("fileProperties"));
         enableFilePropertiesTooltip.setText(resourceBundle.getString("enableFilePropertiesTooltip"));
         performanceLabel.setText(resourceBundle.getString("performanceLabel"));
+        showCachedJob.setText(resourceBundle.getString("showCachedJob"));
         locationSetting.setText(resourceBundle.getString("locationSetting"));
         logSizeSetting.setText(resourceBundle.getString("logSizeSetting"));
         savedLogSetting.setText(resourceBundle.getString("savedLogSetting"));
@@ -221,6 +234,7 @@ public class SettingPresenter implements Initializable {
         saveFilePropertiesEnableButton.setText(resourceBundle.getString("saveFilePropertiesEnableButton"));
         cancelFilePropertiesEnableButton.setText(resourceBundle.getString("cancelFilePropertiesEnableButton"));
         filePropertiesCheckbox.setSelected(filePropertiesSettings.getFilePropertiesEnable().booleanValue());
+        showCachedJobCheckbox.setSelected(showCachedJobSettings.getShowCachedJob().booleanValue());
         final Priority[] priorities = PriorityFilter.filterPriorities(Priority.values());
         for (final Priority priority : priorities) {
             putJobPriority.getItems().add(priority.toString());

@@ -11,6 +11,7 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 
 import com.spectralogic.ds3client.metadata.MetaDataAccessImpl;
+import com.spectralogic.ds3client.metadata.interfaces.MetaDataStoreListner;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -87,12 +88,14 @@ public class Ds3PutJob extends Ds3JobTask {
         this.settings = settings;
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+
     }
 
     @Override
     public void executeJob() throws Exception {
         try {
             ALERT.setHeaderText(null);
+
             updateTitle("Checking BlackPearl's health");
             if (CheckNetwork.isReachable(client)) {
                 final String date = DateFormat.formatDate(new Date());
@@ -176,25 +179,38 @@ public class Ds3PutJob extends Ds3JobTask {
                 //store meta data to server
                 final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
                 if (isFilePropertiesEnable) {
-                    job.withMetadata(new MetaDataAccessImpl(fileMapper));
+                    job.withMetadata(new MetaDataAccessImpl(fileMapper, new MetaDataStoreListner() {
+                        @Override
+                        public void onMetaDataFailed(String s) {
+                        }
+                    }));
                     // Path file = fileMapper.get(filename);
                     job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 }
-                updateProgress(totalJobSize, totalJobSize);
-                updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket -" + bucket + " at location - " + targetDir + ". (BlackPearl cache). Waiting for the storage target allocation.");
-                updateProgress(totalJobSize, totalJobSize);
-                Platform.runLater(() -> {
+                boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
+                final String dateOfTransfer = DateFormat.formatDate(new Date());
+                if(isCacheJobEnable) {
+                    updateProgress(totalJobSize, totalJobSize);
+                    updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket " + bucket + " at location (BlackPearl cache)" + targetDir + " at " + dateOfTransfer + ". Waiting for the storage target allocation.");
+                    updateProgress(totalJobSize, totalJobSize);
+                    Platform.runLater(() -> {
+                        final String newDate = DateFormat.formatDate(new Date());
+                        deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed. Files transferred to" + " bucket " + bucket + " at location (BlackPearl cache) " + targetDir + " at " + newDate + ". Waiting for the storage target allocation.", LogType.SUCCESS);
+                    });
+                    //Can not assign final.
+                    GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+                    while (!response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
+                        Thread.sleep(60000);
+                        response = client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+                    }
                     final String newDate = DateFormat.formatDate(new Date());
-                    deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed. Files transferred to" + " bucket -" + bucket + " at location - " + targetDir + ". (BlackPearl cache). Waiting for the storage target allocation." + " at " + newDate, LogType.SUCCESS);
-                });
-                //Can not assign final.
-                GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-                while (!response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
-                    Thread.sleep(60000);
-                    response = client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "]  completed. File transferred to storage location" + " at " + newDate, LogType.SUCCESS));
                 }
-                final String newDate = DateFormat.formatDate(new Date());
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "]  completed. File transferred to storage location" + " at " + newDate, LogType.SUCCESS));
+                else {
+                    updateProgress(totalJobSize, totalJobSize);
+                    updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket " + bucket + " at location (BlackPearl cache)" + targetDir + " at " + dateOfTransfer + ".");
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "]  completed. File transferred at location (BlackPearl cache)" + " at " + dateOfTransfer, LogType.SUCCESS));
+                }
                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
             } else {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR));

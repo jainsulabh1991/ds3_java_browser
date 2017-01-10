@@ -38,9 +38,11 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.nio.channels.FileLock;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class Main extends Application {
 
@@ -113,11 +115,14 @@ public class Main extends Application {
 
     private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
 
-        if (jobWorkers.getTasks().isEmpty()) {
-            closeApplication();
-            event.consume();
+        //running tasks which are not in cache
+        List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
+        if (notCachedRunningTasks.isEmpty()) {
+            closeApplication(event);
+            //event.consume();
 
-        } else {
+        }
+        else {
 
             final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
                     ButtonType.OK
@@ -129,17 +134,17 @@ public class Main extends Application {
             exitButton.setText("Exit");
             cancelButton.setText("Cancel");
 
-            if (jobWorkers.getTasks().size() == 1) {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " job is still running.");
+            if (notCachedRunningTasks.size() == 1) {
+                CLOSECONFIRMATIONALERT.setHeaderText(notCachedRunningTasks.size() + " job is still running.");
             } else {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " jobs are still running.");
+                CLOSECONFIRMATIONALERT.setHeaderText(notCachedRunningTasks.size() + " jobs are still running.");
             }
 
             final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
 
             if (closeResponse.get().equals(ButtonType.OK)) {
-                closeApplication();
-                event.consume();
+                closeApplication(event);
+                /*event.consume();*/
             }
 
             if (closeResponse.get().equals(ButtonType.CANCEL)) {
@@ -148,7 +153,7 @@ public class Main extends Application {
         }
     };
 
-    private void closeApplication() {
+    private void closeApplication(WindowEvent closeEvent) {
         Injector.forgetAll();
         if (savedSessionStore != null) {
             try {
@@ -208,8 +213,10 @@ public class Main extends Application {
                                 Platform.runLater(() -> LOG.info("Cancelled job."));
 
                             }
+                            closeEvent.consume();
                         } catch (final Exception e1) {
                             Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            closeEvent.consume();
                         }
                     });
                     return null;

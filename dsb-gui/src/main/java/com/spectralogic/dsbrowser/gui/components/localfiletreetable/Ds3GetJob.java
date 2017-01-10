@@ -15,6 +15,7 @@ import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
+import com.spectralogic.ds3client.metadata.interfaces.MetaDataRestoreListener;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
@@ -168,7 +169,11 @@ public class Ds3GetJob extends Ds3JobTask {
                         }
                     });
                     //get meta data saved on  server
-                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
+                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString(), new MetaDataRestoreListener() {
+                        @Override
+                        public void metadataRestoreFailed(String s) {
+                        }
+                    }));
                     getJob.transfer(l -> {
                         final File file = new File(l);
                         String skipPath = null;
