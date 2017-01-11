@@ -253,6 +253,7 @@ public class ParseJobInterruptionMap {
             ds3Common.getDeepStorageBrowserPresenter().logText("Refreshing session " + session.getSessionName() + "-" + session.getEndpoint(), LogType.INFO);
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
+            final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
             //invisible column of full path
             if (ds3TreeTableView != null && ds3TreeTableView.getColumns() != null) {
                 final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView.getColumns().get(1);
@@ -260,64 +261,72 @@ public class ParseJobInterruptionMap {
                     ds3TreeTableValueTreeTableColumn.setVisible(false);
                 }
             }
-            final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-            final Ds3Task getBucketTask = new Ds3Task(session.getClient()) {
+            if (selectedRoot.getValue() != null) {
+                ds3TreeTableView.getSelectionModel().clearSelection();
+                ds3TreeTableView.setRoot(selectedRoot);
+                ds3TreeTableView.getSelectionModel().select(selectedRoot);
+                ((Ds3TreeTableItem) selectedRoot).refresh(ds3Common);
+                ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(selectedRoot.getValue().getFullName());
+            } else {
+                final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
+                final Ds3Task getBucketTask = new Ds3Task(session.getClient()) {
 
-                @Override
-                protected Object call() throws Exception {
-                    try {
-                        final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-                        final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
-                                .getBuckets().stream()
-                                .map(bucket -> {
-                                    final HBox hbox = new HBox();
-                                    hbox.getChildren().add(new Label("----"));
-                                    hbox.setAlignment(Pos.CENTER);
-                                    return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
-                                })
-                                .collect(Collectors.toList());
-                        buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
-                        final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
-                        rootTreeItem.getChildren().addAll(treeItems);
-                        Platform.runLater(() -> {
-                            ds3TreeTableView.setRoot(rootTreeItem);
-                        });
-                    } catch (final FailedRequestException ex) {
-                        Platform.runLater(() -> {
-                            ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR);
-                        });
-                        LOG.error("Invalid Security : " + ex.getError().getMessage());
-                    } catch (final Exception e) {
-                        Platform.runLater(() -> {
-                            ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR);
-                        });
-                    }
-                    return null;
-                }
-            };
-            workers.execute(getBucketTask);
-            getBucketTask.setOnSucceeded(event -> {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTableView.getRoot().getChildren();
-                children.stream().forEach(i -> i.expandedProperty().addListener(new ChangeListener<Boolean>() {
                     @Override
-                    public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
-                        final BooleanProperty bb = (BooleanProperty) observable;
-                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
+                    protected Object call() throws Exception {
+                        try {
+                            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
+                            final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
+                                    .getBuckets().stream()
+                                    .map(bucket -> {
+                                        final HBox hbox = new HBox();
+                                        hbox.getChildren().add(new Label("----"));
+                                        hbox.setAlignment(Pos.CENTER);
+                                        return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
+                                    })
+                                    .collect(Collectors.toList());
+                            buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
+                            final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
+                            rootTreeItem.getChildren().addAll(treeItems);
+                            Platform.runLater(() -> {
+                                ds3TreeTableView.setRoot(rootTreeItem);
+                            });
+                        } catch (final FailedRequestException ex) {
+                            Platform.runLater(() -> {
+                                ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR);
+                            });
+                            LOG.error("Invalid Security : " + ex.getError().getMessage());
+                        } catch (final Exception e) {
+                            Platform.runLater(() -> {
+                                ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR);
+                            });
+                        }
+                        return null;
                     }
-                }));
-                if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + "-" + session.getEndpoint())) {
-                    final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
-                    if (children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().isPresent()) {
-                        final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
-                        ds3TreeTableValueTreeItem.setExpanded(false);
-                        if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
-                            ds3TreeTableView.getSelectionModel().select(ds3TreeTableValueTreeItem);
-                            ds3TreeTableValueTreeItem.setExpanded(true);
+                };
+                workers.execute(getBucketTask);
+                getBucketTask.setOnSucceeded(event -> {
+                    final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTableView.getRoot().getChildren();
+                    children.stream().forEach(i -> i.expandedProperty().addListener(new ChangeListener<Boolean>() {
+                        @Override
+                        public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
+                            final BooleanProperty bb = (BooleanProperty) observable;
+                            final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                            ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
+                        }
+                    }));
+                    if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + "-" + session.getEndpoint())) {
+                        final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
+                        if (children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().isPresent()) {
+                            final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
+                            ds3TreeTableValueTreeItem.setExpanded(false);
+                            if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
+                                ds3TreeTableView.getSelectionModel().select(ds3TreeTableValueTreeItem);
+                                ds3TreeTableValueTreeItem.setExpanded(true);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 

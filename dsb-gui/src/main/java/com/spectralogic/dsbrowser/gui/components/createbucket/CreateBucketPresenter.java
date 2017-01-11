@@ -3,11 +3,13 @@ package com.spectralogic.dsbrowser.gui.components.createbucket;
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -55,6 +57,9 @@ public class CreateBucketPresenter implements Initializable {
 
     @Inject
     private Ds3PanelPresenter ds3PanelPresenter;
+
+    @Inject
+    private Ds3Common ds3Common;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -123,6 +128,8 @@ public class CreateBucketPresenter implements Initializable {
         };
         workers.execute(task);
         task.setOnSucceeded(event -> Platform.runLater(() -> {
+            ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setRoot(new TreeItem<>());
+            ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
             closeDialog();
         }));
     }

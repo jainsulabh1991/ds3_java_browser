@@ -13,6 +13,18 @@
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
+                <Button fx:id="ds3ParentDir">
+                    <tooltip>
+                        <Tooltip fx:id="ds3ParentDirToolTip"/>
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@/images/parent_directory.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
                 <Button fx:id="ds3Refresh">
                     <tooltip>
                         <Tooltip fx:id="ds3RefreshToolTip"/>

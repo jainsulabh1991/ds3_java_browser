@@ -9,16 +9,13 @@ import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
-
-import com.spectralogic.ds3client.metadata.MetaDataAccessImpl;
-import com.spectralogic.ds3client.metadata.interfaces.MetaDataStoreListner;
+import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
+import com.spectralogic.ds3client.metadata.interfaces.MetadataStoreListener;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-
-
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -42,39 +39,22 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Ds3PutJob extends Ds3JobTask {
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
     final Alert ALERT = new Alert(
             Alert.AlertType.INFORMATION
     );
-
-    public SettingsStore getSettings() {
-        return settings;
-    }
-
-    private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
-
-    public Ds3Client getClient() {
-        return client;
-    }
-
-    public DeepStorageBrowserPresenter getDeepStorageBrowserPresenter() {
-        return deepStorageBrowserPresenter;
-    }
-
-    private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
-
-
     private final Ds3Client client;
     private final List<File> files;
     private final String bucket;
     private final String targetDir;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final String jobPriority;
-    private UUID jobId;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final Ds3Common ds3Common;
     private final SettingsStore settings;
-
+    private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
+    private UUID jobId;
     public Ds3PutJob(final Ds3Client client, final List<File> files, final String bucket, final String targetDir, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobIdsModel, final Ds3Common ds3Common, final SettingsStore settings) {
         this.client = client;
         this.files = files;
@@ -91,11 +71,22 @@ public class Ds3PutJob extends Ds3JobTask {
 
     }
 
+    public SettingsStore getSettings() {
+        return settings;
+    }
+
+    public Ds3Client getClient() {
+        return client;
+    }
+
+    public DeepStorageBrowserPresenter getDeepStorageBrowserPresenter() {
+        return deepStorageBrowserPresenter;
+    }
+
     @Override
     public void executeJob() throws Exception {
         try {
             ALERT.setHeaderText(null);
-
             updateTitle("Checking BlackPearl's health");
             if (CheckNetwork.isReachable(client)) {
                 final String date = DateFormat.formatDate(new Date());
@@ -179,9 +170,9 @@ public class Ds3PutJob extends Ds3JobTask {
                 //store meta data to server
                 final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
                 if (isFilePropertiesEnable) {
-                    job.withMetadata(new MetaDataAccessImpl(fileMapper, new MetaDataStoreListner() {
+                    job.withMetadata(new MetadataAccessImpl(fileMapper, new MetadataStoreListener() {
                         @Override
-                        public void onMetaDataFailed(String s) {
+                        public void onMetadataFailed(String s) {
                         }
                     }));
                     // Path file = fileMapper.get(filename);
@@ -189,7 +180,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 }
                 boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
                 final String dateOfTransfer = DateFormat.formatDate(new Date());
-                if(isCacheJobEnable) {
+                if (isCacheJobEnable) {
                     updateProgress(totalJobSize, totalJobSize);
                     updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket " + bucket + " at location (BlackPearl cache)" + targetDir + " at " + dateOfTransfer + ". Waiting for the storage target allocation.");
                     updateProgress(totalJobSize, totalJobSize);
@@ -205,8 +196,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     }
                     final String newDate = DateFormat.formatDate(new Date());
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "]  completed. File transferred to storage location" + " at " + newDate, LogType.SUCCESS));
-                }
-                else {
+                } else {
                     updateProgress(totalJobSize, totalJobSize);
                     updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket " + bucket + " at location (BlackPearl cache)" + targetDir + " at " + dateOfTransfer + ".");
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "]  completed. File transferred at location (BlackPearl cache)" + " at " + dateOfTransfer, LogType.SUCCESS));

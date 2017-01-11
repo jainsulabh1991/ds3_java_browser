@@ -13,9 +13,8 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
-
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
-import com.spectralogic.ds3client.metadata.interfaces.MetaDataRestoreListener;
+import com.spectralogic.ds3client.metadata.interfaces.MetadataRestoreListener;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
@@ -47,9 +46,9 @@ import java.util.stream.Collectors;
 
 public class Ds3GetJob extends Ds3JobTask {
 
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
-
+    final Map<Path, Path> map;
+    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final ImmutableSet.Builder<String> partOfDirBuilder;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final List<Ds3TreeTableValueCustom> list;
@@ -57,12 +56,11 @@ public class Ds3GetJob extends Ds3JobTask {
     private final Ds3Client ds3Client;
     private final ArrayList<Ds3TreeTableValueCustom> nodes;
     private final String jobPriority;
-    final Map<Path, Path> map;
-    private UUID jobId;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
-    private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private final Ds3Common ds3Common;
+    private UUID jobId;
+    private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
 
     public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common) {
         this.list = list;
@@ -169,7 +167,7 @@ public class Ds3GetJob extends Ds3JobTask {
                         }
                     });
                     //get meta data saved on  server
-                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString(), new MetaDataRestoreListener() {
+                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString(), new MetadataRestoreListener() {
                         @Override
                         public void metadataRestoreFailed(String s) {
                         }

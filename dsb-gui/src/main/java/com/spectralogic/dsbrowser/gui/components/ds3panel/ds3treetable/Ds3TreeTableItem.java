@@ -27,6 +27,7 @@ import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
@@ -53,6 +54,11 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Workers workers;
     private boolean accessedChildren = false;
     private final int pageLength = 1000;
+
+    public void setDs3TreeTable(TreeTableView ds3TreeTable) {
+        this.ds3TreeTable = ds3TreeTable;
+    }
+
     private TreeTableView ds3TreeTable;
     private Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
@@ -95,7 +101,11 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
     }
 
-    public void refresh() {
+    public void refresh(Ds3Common ds3Common) {
+        this.ds3Common = ds3Common;
+        if (super.getValue() != null) {
+            this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(super.getValue().getFullName());
+        }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
         buildChildren(list);
@@ -134,7 +144,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         super.setGraphic(processImage);
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
-        getBucketTask.setOnSucceeded(event -> super.setGraphic(previousGraphics));
+        getBucketTask.setOnSucceeded(event -> { super.setGraphic(previousGraphics);
+        if(ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3PanelPresenter().getDs3TreeTableView() != null)
+        ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setPlaceholder(null);
+        });
         getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
         getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));
     }

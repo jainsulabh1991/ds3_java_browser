@@ -172,11 +172,17 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     public void deletePrompt() {
         LOG.info("Got delete event");
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
-        if (values.isEmpty()) {
+        ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
+        if (tempValues.isEmpty() && null == root) {
             LOG.error("No files selected");
             return;
+        } else if (tempValues.isEmpty()) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = tempValues.builder();
+            tempValues = builder.add(root).build().asList();
+
         }
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             LOG.error("You can only recursively delete a folder. Please select the folder to delete, Right click, and select 'Delete Folder...'");
             return;
@@ -242,13 +248,17 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void createFolderPrompt() {
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems()
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
+        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
         if (values.isEmpty()) {
             deepStorageBrowserPresenter.logText("Select bucket/folder where you want to create an empty folder.", LogType.ERROR);
             ALERT.setContentText("Location is not selected");
             ALERT.showAndWait();
             return;
+        } else if (values.isEmpty()) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+            values = builder.add(root).build().asList();
         }
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.error("You can not create folder here. Please refresh your view");
@@ -281,8 +291,11 @@ public class Ds3TreeTablePresenter implements Initializable {
             public void changed(final ObservableValue observable, final Object oldValue,
                                 final Object newValue) {
                 //noinspection unchecked
-                final TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
-                if (selectedItem != null) {
+                TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
+                final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
+                if (selectedItem == null && null != root)
+                    selectedItem = root;
+                if (selectedItem != null && null != selectedItem.getValue()) {
                     //can not assign final
                     String path = selectedItem.getValue().getFullName();
                     if (selectedItem.getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
@@ -313,7 +326,11 @@ public class Ds3TreeTablePresenter implements Initializable {
                     {
                         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                         // detect which deletes should be enabled
-                        final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
+                        ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
+                        if (null == selectedItems || selectedItems.size() == 0) {
+                            selectedItems = FXCollections.observableArrayList();
+                            selectedItems.add(ds3TreeTable.getRoot());
+                        }
                         if (selectedItems.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
                             LOG.error("You can not delete from here. Please go to specific location and delete object(s)");
                             deleteFile.setDisable(false);
@@ -502,19 +519,33 @@ public class Ds3TreeTablePresenter implements Initializable {
                         rowNameList.remove(row.getTreeItem().getValue().getName());
                     }
                 } else if (event.getClickCount() == 2) {
+                    final ProgressIndicator progress = new ProgressIndicator();
+                    progress.setMaxSize(90, 90);
+                    ds3TreeTable.setPlaceholder(new StackPane(progress));
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
                     ds3TreeTable.getSelectionModel().select(row.getIndex());
-                    if (row.getTreeItem() != null) {
+                    if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                        if (checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), row.getTreeItem()))
+                            ds3TreeTable.setPlaceholder(null);
                         row.getTreeItem().setExpanded(true);
+                        ds3TreeTable.setShowRoot(false);
+                        ds3TreeTable.setRoot(row.getTreeItem());
+
                     }
                 } else if (event.getButton().name().equals("SECONDARY")) {
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                        loadMore(row.getTreeItem());
+                    try {
+                        if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                            loadMore(row.getTreeItem());
+                        }
+                    } catch (Exception e) {
                     }
                 } else {
-                    ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                        loadMore(row.getTreeItem());
+                    try {
+                        ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
+                        if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                            loadMore(row.getTreeItem());
+                        }
+                    } catch (Exception e) {
                     }
                 }
             });
@@ -668,14 +699,20 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void showPhysicalPlacement() {
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems()
+        ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = ds3TreeTable.getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
-        if (values.isEmpty()) {
+        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
+        if (tempValues.isEmpty()) {
             LOG.error("Nothing selected");
             ALERT.setContentText("Nothing selected !!");
             ALERT.showAndWait();
             return;
+        } else if (tempValues.isEmpty()) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = tempValues.builder();
+            tempValues = builder.add(root).build().asList();
+
         }
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
             LOG.error("Only a single object can be selected to view physical placement ");
             ALERT.setContentText("Only a single object can be selected to view physical placement");
@@ -734,10 +771,15 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private void deleteFolderPrompt() {
         LOG.info("Got delete folder event");
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
-        if (values.isEmpty()) {
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
+        if (values.isEmpty() && null == root) {
             LOG.error("No files selected");
             return;
+        } else if (values.isEmpty()) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+            values = builder.add(root).build().asList();
+
         }
         if (values.size() > 1) {
             LOG.error("You can only select a single folder to delete");
@@ -756,6 +798,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                     Platform.runLater(() -> {
                         //  deepStorageBrowserPresenter.logText("Delete response code: " + deleteFolderRecursivelySpectraS3Response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted folder", LogType.SUCCESS);
+                        ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                        ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                     });
                 } catch (final IOException e) {
                     if (e instanceof FailedRequestException) {
@@ -785,7 +829,16 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private void deleteBucketPrompt() {
         LOG.info("Got delete bucket event");
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> buckets = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        ImmutableList<TreeItem<Ds3TreeTableValue>> buckets = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
+        if (buckets.isEmpty() && null == root) {
+            LOG.error("No files selected");
+            return;
+        } else if (buckets.isEmpty()) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = buckets.builder();
+            buckets = builder.add(root).build().asList();
+
+        }
         if (buckets.size() > 1) {
             LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
             ALERT.setContentText("The user selected multiple buckets.  This is not allowed.");
@@ -800,7 +853,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ALERT.showAndWait();
                 return;
             }
-            if (!checkIfBucketEmpty(value.getValue().getBucketName())) {
+            if (!checkIfBucketEmpty(value.getValue().getBucketName(), null)) {
                 Platform.runLater(() -> {
                     deepStorageBrowserPresenter.logText("Failed to delete Bucket as it contains files/folders", LogType.ERROR);
                     ALERT.setContentText("You can not delete bucket as it contains files/folders");
@@ -811,7 +864,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                          getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getValue().getBucketName()).withForce(true));
+                            final DeleteBucketSpectraS3Response deleteBucketSpectraS3Response = getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getValue().getBucketName()).withForce(true));
                             Platform.runLater(() -> {
                                 deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);
                             });
@@ -875,10 +928,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                 item = (Ds3TreeTableItem) modifiedTreeItem;
             }
             if (item.isExpanded()) {
-                item.refresh();
+                item.refresh(ds3Common);
             } else if (item.isAccessedChildren()) {
                 item.setExpanded(true);
-                item.refresh();
+                item.refresh(ds3Common);
             } else {
                 item.setExpanded(true);
             }
@@ -977,18 +1030,23 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
 
-    /**
+     /**
      * check if bucket contains files or folders
      *
      * @param bucketName
+     * @param treeItem
      * @return true if bucket is empty else return false
      */
-    private boolean checkIfBucketEmpty(final String bucketName) {
+    private boolean checkIfBucketEmpty(final String bucketName, final TreeItem<Ds3TreeTableValue> treeItem) {
         try {
             final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/").withMaxKeys(1);
+            if (null != treeItem && !treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
+                request.withPrefix(treeItem.getValue().getFullName());
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
             final ListBucketResult listBucketResult = bucketResponse.getListBucketResult();
             if (listBucketResult.getObjects().size() == 0 && listBucketResult.getCommonPrefixes().size() == 0) {
+                return true;
+            } else if (listBucketResult.getObjects().size() == 1 && listBucketResult.getNextMarker() == null) {
                 return true;
             } else {
                 return false;
@@ -1000,5 +1058,4 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
 
     }
-
 }

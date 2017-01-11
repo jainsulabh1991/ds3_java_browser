@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
@@ -185,15 +186,23 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final VBox vboxBP = (VBox) tabPane.getSelectionModel().getSelectedItem().getContent();
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) vboxBP.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().get();
-            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+            ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
-
-            if (values.isEmpty()) {
-                ALERT.setContentText("Select destination location.");
-                ALERT.showAndWait();
-                return;
+            //Finding root in case of double click to get selected items
+            final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
+            if (root == null) {
+                if (values.isEmpty()) {
+                    ALERT.setContentText("Select destination location.");
+                    ALERT.showAndWait();
+                    return;
+                }
             }
+            //If values is empty we have to assign it with root
+            else if (values.isEmpty()) {
+                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+                values = builder.add(root).build().asList();
 
+            }
             if (values.size() > 1) {
                 ALERT.setContentText("Multiple destination not allowed. Please select one.");
                 ALERT.showAndWait();
@@ -260,7 +269,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (treeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) treeItem;
-            ds3TreeTableItem.refresh();
+            ds3TreeTableItem.refresh(ds3Common);
         }
     }
 

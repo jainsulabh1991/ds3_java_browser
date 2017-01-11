@@ -48,9 +48,9 @@ public class FileTreeModel {
     public String getNamePart(final Path path, final int depth) {
         if (depth < 0) {
             //get volume name from volume letter
-            FileSystemView fsv = FileSystemView.getFileSystemView();
-            if (!fsv.getSystemDisplayName(new File(path.toString())).isEmpty())
-                return fsv.getSystemDisplayName(new File(path.toString()));
+            final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+            if (!fileSystemView.getSystemDisplayName(new File(path.toString())).isEmpty())
+                return fileSystemView.getSystemDisplayName(new File(path.toString()));
             else
                 return path.toString();
         } else {
