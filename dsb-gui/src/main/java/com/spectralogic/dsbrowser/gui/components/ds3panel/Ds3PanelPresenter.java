@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.*;
 import com.spectralogic.ds3client.commands.spectrads3.*;
+import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.models.BucketDetails;
 import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.networking.FailedRequestException;
@@ -829,8 +830,9 @@ public class Ds3PanelPresenter implements Initializable {
             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
         } else {
             try {
-                final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-                final List<BucketDetails> buckets = response.getListAllMyBucketsResult().getBuckets();
+                final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
+                final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
+                final List<Bucket> buckets = response.getBucketListResult().getBuckets();
                 final SearchJob searchJob = new SearchJob(buckets, deepStorageBrowserPresenter, ds3TreeTableView, ds3PathIndicator, newValue, session, workers);
 
                 workers.execute(searchJob);

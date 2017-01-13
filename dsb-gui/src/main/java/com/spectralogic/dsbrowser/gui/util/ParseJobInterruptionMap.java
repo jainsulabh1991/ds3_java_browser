@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetServiceRequest;
 import com.spectralogic.ds3client.commands.GetServiceResponse;
+import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
@@ -274,14 +276,15 @@ public class ParseJobInterruptionMap {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-                            final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
+                            final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
+                            final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
+                            final List<Ds3TreeTableValue> buckets = response.getBucketListResult()
                                     .getBuckets().stream()
                                     .map(bucket -> {
                                         final HBox hbox = new HBox();
                                         hbox.getChildren().add(new Label("----"));
                                         hbox.setAlignment(Pos.CENTER);
-                                        return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
+                                        return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox,bucket.getLogicalUsedCapacity());
                                     })
                                     .collect(Collectors.toList());
                             buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));

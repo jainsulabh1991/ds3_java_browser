@@ -32,16 +32,20 @@ public class SettingsStore {
     @JsonProperty("showCachedJobSettings")
     private final ShowCachedJobSettings showCachedJobSettings;
 
+    @JsonProperty("windowSetting")
+    private final WindowSetting windowSettings;
+
     private boolean dirty = false;
 
 
     @JsonCreator
-    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings, @JsonProperty("processSettings") final ProcessSettings processSettings, @JsonProperty("filePropertiesSettings") final FilePropertiesSettings filePropertiesSettings,  @JsonProperty("showCachedJobSettings")
-    final ShowCachedJobSettings showCachedJobSettings) {
+    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings, @JsonProperty("processSettings") final ProcessSettings processSettings, @JsonProperty("filePropertiesSettings") final FilePropertiesSettings filePropertiesSettings, @JsonProperty("showCachedJobSettings")
+    final ShowCachedJobSettings showCachedJobSettings, @JsonProperty("windowSetting") final WindowSetting windowSetting) {
         this.logSettings = logSettings;
         this.processSettings = processSettings;
         this.filePropertiesSettings = filePropertiesSettings;
         this.showCachedJobSettings = showCachedJobSettings;
+        this.windowSettings = windowSetting;
     }
 
     public static SettingsStore loadSettingsStore() throws IOException {
@@ -54,12 +58,12 @@ public class SettingsStore {
                 e.printStackTrace();
                 Files.delete(PATH);
                 LOG.info("Creating new empty saved setting store");
-                final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT,ShowCachedJobSettings.DEFAULT);
+                final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT, ShowCachedJobSettings.DEFAULT, WindowSetting.DEFAULT);
                 settingsStore.dirty = true; // set this to true so we will write the settings after the first run
                 return settingsStore;
             }
         } else {
-            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT,ShowCachedJobSettings.DEFAULT);
+            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT, ShowCachedJobSettings.DEFAULT, WindowSetting.DEFAULT);
             settingsStore.dirty = true; // set this to true so we will write the settings after the first run
             return settingsStore;
         }
@@ -113,6 +117,16 @@ public class SettingsStore {
         showCachedJobSettings.overwrite(settings);
     }
 
+
+    public WindowSetting getWindowSettings() {
+        return windowSettings.copy();
+    }
+
+    public void setWindowSettings(final WindowSetting settings) {
+        dirty = true;
+        windowSettings.overwrite(settings);
+    }
+
     //method to include new json entry to settings.json file if any new setting property is introduced.
     public static void writeNewSettingsToSettingsJsonFile() {
         try (final Stream<String> stream = Files.lines(PATH)) {
@@ -131,6 +145,16 @@ public class SettingsStore {
                     StringBuilder newFile = new StringBuilder(e);
                     newFile.deleteCharAt(newFile.length() - 1);
                     newFile = newFile.append(",\"showCachedJobSettings\":{\"showCachedJobSettings\":true}}");//file property is true by default..adding this new setting to the file
+                    try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
+                        writer.write(newFile.toString());
+                    } catch (final IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                if (!e.contains("windowSetting")) {
+                    StringBuilder newFile = new StringBuilder(e);
+                    newFile.deleteCharAt(newFile.length() - 1);
+                    newFile = newFile.append(",\"windowSetting\":{\"height\":600,\"width\":1000}}");//file property is true by default..adding this new setting to the file
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException ex) {

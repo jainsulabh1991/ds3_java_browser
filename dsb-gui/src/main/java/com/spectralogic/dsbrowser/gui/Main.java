@@ -14,6 +14,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.settings.WindowSetting;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -21,12 +22,14 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
@@ -102,11 +105,11 @@ public class Main extends Application {
         final Scene mainScene = new Scene(mainView.getView());
         primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
-        primaryStage.setMaximized(true);
-       /* primaryStage.setMinHeight(300);
-        primaryStage.setMinWidth(200);
-        primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(900);*/
+        primaryStage.setHeight(settings.getWindowSettings().getHeight());
+        primaryStage.setWidth(settings.getWindowSettings().getWidth());
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        primaryStage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+        primaryStage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
@@ -120,10 +123,7 @@ public class Main extends Application {
         if (notCachedRunningTasks.isEmpty()) {
             closeApplication(event);
             //event.consume();
-
-        }
-        else {
-
+        } else {
             final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
                     ButtonType.OK
             );
@@ -154,6 +154,7 @@ public class Main extends Application {
     };
 
     private void closeApplication(WindowEvent closeEvent) {
+        settings.setWindowSettings(new WindowSetting(this.primaryStage.getHeight(), this.primaryStage.getWidth()));
         Injector.forgetAll();
         if (savedSessionStore != null) {
             try {

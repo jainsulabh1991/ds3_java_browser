@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class Ds3TreeTablePresenter implements Initializable {
@@ -122,7 +123,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @FXML
     private TreeTableColumn fullPath;
 
-    private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
+    private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, selectAll, metaData, createBucket, createFolder;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -159,6 +160,8 @@ public class Ds3TreeTablePresenter implements Initializable {
         deleteFolder.setOnAction(event -> deleteFolderPrompt());
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
         deleteBucket.setOnAction(event -> deleteBucketPrompt());
+        selectAll = new MenuItem(resourceBundle.getString("selectAllContextMenu"));
+        selectAll.setOnAction(event -> selectAll());
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
         physicalPlacement.setOnAction(event -> showPhysicalPlacement());
         metaData = new MenuItem(resourceBundle.getString("metaDataContextMenu"));
@@ -167,7 +170,21 @@ public class Ds3TreeTablePresenter implements Initializable {
         createBucket.setOnAction(event -> createBucketPrompt());
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
         createFolder.setOnAction(event -> createFolderPrompt());
-        contextMenu.getItems().addAll(metaData, physicalPlacement, deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
+        contextMenu.getItems().addAll(metaData, physicalPlacement, deleteFile, deleteFolder, deleteBucket, selectAll, new SeparatorMenuItem(), createBucket, createFolder);
+    }
+
+    private void selectAll() {
+        final List<String> rowNameList = new ArrayList<>();
+        if (null == ds3TreeTable.getSelectionModel().getSelectedItem()) {
+            selectAll.setDisable(true);
+        } else {
+            ds3TreeTable.getSelectionModel().getSelectedItem().getParent().getChildren().stream().forEach((child) -> {
+                if (!rowNameList.contains(child.getValue().getName())) {
+                    rowNameList.add(child.getValue().getName());
+                    ds3TreeTable.getSelectionModel().select(child);
+                }
+            });
+        }
     }
 
     public void deletePrompt() {
@@ -314,10 +331,11 @@ public class Ds3TreeTablePresenter implements Initializable {
             deleteBucket.setDisable(true);
             deleteFolder.setDisable(true);
             deleteFile.setDisable(true);
-            physicalPlacement.setDisable(true);
+            physicalPlacement.setDisable(false);
             metaData.setDisable(true);
             createFolder.setDisable(true);
             createBucket.setDisable(false);
+            selectAll.setDisable(true);
         });
         ds3TreeTable.setContextMenu(contextMenu);
         ds3TreeTable.setRowFactory(view -> {
@@ -375,7 +393,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     metaData.setDisable(true);
                                     deleteFolder.setDisable(true);
                                     deleteBucket.setDisable(false);
-                                    physicalPlacement.setDisable(true);
+                                    physicalPlacement.setDisable(false);
                                     createFolder.setDisable(false);
                                 } else if (ds3TreeTableValueTreeItem.getValue().getType() == Ds3TreeTableValue.Type.Directory) {
                                     deleteFile.setDisable(true);
@@ -392,6 +410,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 }
 
                             }
+                        }
+                        if (null != ds3TreeTable.getSelectionModel().getSelectedItem().getParent().getChildren()
+                                && ds3TreeTable.getSelectionModel().getSelectedItem().getParent().getChildren().size() != 0) {
+                            selectAll.setDisable(false);
+                        } else {
+                            selectAll.setDisable(true);
                         }
                     }
             );
@@ -544,6 +568,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                         ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
                         if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                             loadMore(row.getTreeItem());
+                        }
+                        //show logical capacity used by bucket
+                        else if(row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                            System.out.println("Bucket Capacity ::" + row.getTreeItem().getValue().getLogicalCapacity() + " "+FileSizeFormat.getFileSizeType(row.getTreeItem().getValue().getLogicalCapacity()));
                         }
                     } catch (Exception e) {
                     }
@@ -724,8 +752,10 @@ public class Ds3TreeTablePresenter implements Initializable {
             protected PhysicalPlacement call() throws Exception {
                 final Ds3Client client = session.getClient();
                 final Ds3TreeTableValue value = values.get(0).getValue();
-                final List<Ds3Object> list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
-                        .collect(Collectors.toList());
+                List<Ds3Object> list = null;
+                if (null != value && !value.getType().equals(Ds3TreeTableValue.Type.Bucket))
+                    list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
+                            .collect(Collectors.toList());
                 final GetPhysicalPlacementForObjectsSpectraS3Response response = client
                         .getPhysicalPlacementForObjectsSpectraS3(
                                 new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
@@ -1003,15 +1033,16 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
-            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-            if (response.getListAllMyBucketsResult().getBuckets() != null) {
-                final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
+            GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
+            final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
+            if (response.getBucketListResult().getBuckets() != null) {
+                final List<Ds3TreeTableValue> buckets = response.getBucketListResult()
                         .getBuckets().stream()
                         .map(bucket -> {
                             final HBox hbox = new HBox();
                             hbox.getChildren().add(new Label("----"));
                             hbox.setAlignment(Pos.CENTER);
-                            return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
+                            return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox,bucket.getLogicalUsedCapacity());
                         })
                         .collect(Collectors.toList());
                 buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
