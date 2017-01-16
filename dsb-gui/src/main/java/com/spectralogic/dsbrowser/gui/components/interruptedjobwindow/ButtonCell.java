@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.ds3client.networking.FailedRequestException;
+import com.spectralogic.dsbrowser.gui.components.about.AboutPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -23,6 +24,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
-
+    private final Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
@@ -83,6 +86,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
                             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
                         } catch (final IOException e1) {
+                            LOG.error(e1.toString());
                             if (!(e1 instanceof FailedRequestException)) {
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
                             }
@@ -111,6 +115,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
                         Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
                     } catch (final IOException e1) {
+                        LOG.error(e1.toString());
                         Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
                     } finally {
                         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());

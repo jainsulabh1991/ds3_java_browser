@@ -64,6 +64,8 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
             return new ImageView(SwingFXUtils.toFXImage(bufferedImage, null));
         } catch (final Exception e) {
+            LOG.error(e.toString());
+            e.printStackTrace();
             return getGraphicFont(fileTreeModel);
         }
 
@@ -135,10 +137,12 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
 
         } catch (final AccessDeniedException ae) {
-            LOG.error("Could not access file", ae);
+            LOG.error("Could not access file" +ae.toString());
+            ae.printStackTrace();
             setError("Invalid permissions");
         } catch (final IOException e) {
-            LOG.error("Failed to get children for " + path.toString(), e);
+            LOG.error("Failed to get children for " + path.toString() +e.toString());
+            e.printStackTrace();
             setError("Failed to get children");
         }
     }

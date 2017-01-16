@@ -53,7 +53,8 @@ public class MetadataPresenter implements Initializable {
             initTable();
 
         } catch (final Throwable e) {
-            LOG.error("Failed to create ds3Metadata presenter", e);
+            LOG.error("Failed to create ds3Metadata presenter" +e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -156,6 +157,7 @@ public class MetadataPresenter implements Initializable {
             }
             return builder;
         } catch (final Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
         }
         return builder;

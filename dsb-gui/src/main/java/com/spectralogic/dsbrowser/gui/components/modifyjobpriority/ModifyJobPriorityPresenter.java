@@ -53,6 +53,7 @@ public class ModifyJobPriorityPresenter implements Initializable {
                 final Stage popupStage = (Stage) modifyJobPriorityComboBox.getScene().getWindow();
                 popupStage.close();
             } catch (final IOException e) {
+                LOG.error(e.toString());
                 e.printStackTrace();
             }
         }

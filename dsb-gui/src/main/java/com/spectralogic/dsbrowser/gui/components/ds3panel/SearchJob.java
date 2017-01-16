@@ -6,6 +6,7 @@ import com.spectralogic.ds3client.models.*;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
@@ -17,12 +18,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class SearchJob extends Task<String> {
+    private final Logger LOG = LoggerFactory.getLogger(SearchJob.class);
     private final List<Bucket> buckets;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
@@ -98,6 +102,7 @@ public class SearchJob extends Task<String> {
                 ds3TreeTableValueTreeTableColumn.setVisible(true);
             });
         } catch (final Exception e) {
+            LOG.error(e.toString());
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Search failed: " + e.toString(), LogType.INFO));
         }
         return null;

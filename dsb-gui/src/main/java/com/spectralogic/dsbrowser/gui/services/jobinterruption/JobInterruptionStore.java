@@ -31,7 +31,8 @@ public class JobInterruptionStore {
                 return new JobInterruptionStore(jobIdsModel);
             } catch (final Exception e) {
                 Files.delete(PATH);
-                LOG.info("Creating new empty job ids store");
+                LOG.info("Creating new empty job ids store" +e.toString());
+                e.printStackTrace();
                 final JobInterruptionStore jobInterruptionStore = new JobInterruptionStore(JobIdsModel.DEFAULT);
                 jobInterruptionStore.dirty = true;
                 return jobInterruptionStore;

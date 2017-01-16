@@ -9,6 +9,7 @@ import com.spectralogic.ds3client.commands.spectrads3.GetSystemInformationSpectr
 import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,11 +17,14 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 public class NewSessionModel {
+    private static final Logger LOG = LoggerFactory.getLogger(NewSessionModel.class);
     private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
 
     private final StringProperty sessionName = new SimpleStringProperty();
@@ -125,14 +129,20 @@ public class NewSessionModel {
 
 
         } catch (final UnknownHostException e) {
+            LOG.error(e.toString());
+            e.printStackTrace();
             ALERT.setTitle("Invalid Endpoint");
             ALERT.setContentText("Invalid Endpoint Server Name or IP Address");
             ALERT.showAndWait();
 
         } catch (final FailedRequestUsingMgmtPortException e) {
+            LOG.error(e.toString());
+            e.printStackTrace();
             ALERT.setContentText("Attempted data access on management port -- check endpoint");
             ALERT.showAndWait();
         } catch (final FailedRequestException e) {
+            LOG.error(e.toString());
+            e.printStackTrace();
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     ALERT.setTitle("Failed To authenticate session");
@@ -149,7 +159,8 @@ public class NewSessionModel {
 
             }
         } catch (final Exception e) {
-e.printStackTrace();
+            LOG.error(e.toString());
+                    e.printStackTrace();
             if (e instanceof IOException) {
                 ALERT.setTitle("Networking Error");
                 ALERT.setContentText("Encountered a networking error");

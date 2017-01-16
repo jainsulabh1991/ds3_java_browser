@@ -94,6 +94,7 @@ public class ParseJobInterruptionMap {
                 jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
                 jobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
             } catch (final Exception e) {
+                LOG.error(e.toString());
                 if (deepStorageBrowserPresenter != null) {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to remove job id" + e.toString(), LogType.ERROR));
                 }
@@ -156,6 +157,7 @@ public class ParseJobInterruptionMap {
             JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
         } catch (final IOException e) {
             LOG.info("Failed to saved job ids", e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -181,7 +183,9 @@ public class ParseJobInterruptionMap {
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                             }
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            LOG.error(e1.toString());
+                            Platform.runLater(() -> LOG.info("Failed to cancel job" +e1.toString()));
+                            e1.printStackTrace();
 
                         }
                     });
@@ -233,7 +237,9 @@ public class ParseJobInterruptionMap {
                             } else {
                             }
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            LOG.error(e1.toString());
+                            Platform.runLater(() -> LOG.info("Failed to cancel job" +e1.toString()));
+                            e1.printStackTrace();
                         }
                     });
                     return null;
@@ -294,11 +300,13 @@ public class ParseJobInterruptionMap {
                                 ds3TreeTableView.setRoot(rootTreeItem);
                             });
                         } catch (final FailedRequestException ex) {
+                            LOG.error(ex.toString());
                             Platform.runLater(() -> {
                                 ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR);
                             });
                             LOG.error("Invalid Security : " + ex.getError().getMessage());
                         } catch (final Exception e) {
+                            LOG.error(e.toString());
                             Platform.runLater(() -> {
                                 ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR);
                             });

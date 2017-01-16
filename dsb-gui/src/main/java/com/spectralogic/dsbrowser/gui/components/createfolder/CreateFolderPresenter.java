@@ -78,7 +78,8 @@ public class CreateFolderPresenter implements Initializable {
             });
 
         } catch (final Throwable e) {
-            LOG.error("Encountered an error making the create folder presenter", e);
+            LOG.error("Encountered an error making the create folder presenter" +e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -114,7 +115,7 @@ public class CreateFolderPresenter implements Initializable {
                     });
                     return response;
                 } catch (final Exception e) {
-                    LOG.error("Failed to craete directory", e);
+                    LOG.error("Failed to craete directory" +e.toString());
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to create folder "+folderNameField.textProperty().getValue()+" Reason: " + e.toString(), LogType.ERROR);
                         ALERT.setContentText("Failed to create folder. Check logs.");

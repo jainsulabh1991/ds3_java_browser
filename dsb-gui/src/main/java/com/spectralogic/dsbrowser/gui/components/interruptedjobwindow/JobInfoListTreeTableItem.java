@@ -4,6 +4,7 @@ import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsS
 import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
 import com.spectralogic.ds3client.models.DetailedS3Object;
 import com.spectralogic.ds3client.models.S3ObjectType;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -15,6 +16,8 @@ import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
-
+    private final static Logger LOG = LoggerFactory.getLogger(JobInfoListTreeTableItem.class);
     private final String jobId;
     private final JobInfoModel modelValue;
     private boolean accessedChildren = false;
@@ -99,6 +102,8 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         try {
                             size = Files.size(i.getValue());
                         } catch (final IOException e) {
+                            LOG.error(e.toString());
+                            e.printStackTrace();
                         }
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), "--", size, i.getValue().toString(), modelValue.getJobType(), "--", JobInfoModel.Type.File, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
@@ -129,6 +134,8 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                                 try {
                                     size = Files.size(file.toPath());
                                 } catch (final IOException e) {
+                                    LOG.error(e.toString());
+                                    e.printStackTrace();
                                 }
                                 final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), "--", size, file.getPath(), modelValue.getJobType(), "--", JobInfoModel.Type.File, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                 list.add(jobListTreeTableItem);
@@ -153,6 +160,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                                 }
                             });
                         } catch (final IOException e) {
+                            LOG.error(e.toString());
                             e.printStackTrace();
                         }
                     }

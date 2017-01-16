@@ -75,7 +75,8 @@ public class NewSessionPresenter implements Initializable {
             initSessionList();
             initPropertySheet();
         } catch (final Exception e) {
-            LOG.error("Failed to load NewSessionPresenter", e);
+            LOG.error("Failed to load NewSessionPresenter" +e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -153,6 +154,8 @@ public class NewSessionPresenter implements Initializable {
             final GetUserSpectraS3Response userSpectraS3 = client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId()));
             return new Session(rowData.getName(), rowData.getEndpoint(), rowData.getPortNo(), rowData.getProxyServer(), client);
         } catch (final Exception e) {
+            LOG.error(e.toString());
+            e.printStackTrace();
             return null;
         }
     }
@@ -280,6 +283,7 @@ public class NewSessionPresenter implements Initializable {
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     } catch (final IOException e) {
+                        LOG.error(e.toString());
                         e.printStackTrace();
                     }
                     if (i <= previousSize) {

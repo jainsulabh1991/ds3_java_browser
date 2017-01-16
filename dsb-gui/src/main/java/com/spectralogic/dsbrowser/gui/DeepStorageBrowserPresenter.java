@@ -302,7 +302,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
 
         } catch (final Throwable e) {
-            LOG.error("Encountered an error when creating Main view", e);
+            LOG.error("Encountered an error when creating Main view", e.toString());
             logText("Encountered an error when creating Main view", LogType.ERROR);
             e.printStackTrace();
         }
@@ -369,6 +369,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             }
         } catch (final Exception e) {
             LOG.info("Unable to set tooltip behaviour", e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -392,14 +393,16 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 SavedSessionStore.saveSavedSessionStore(savedSessionStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save session information to the local filesystem", e);
+                LOG.error("Failed to save session information to the local filesystem" +e.toString());
+                e.printStackTrace();
             }
         }
         if (savedJobPrioritiesStore != null) {
             try {
                 SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save job settings information to the local filesystem", e);
+                LOG.error("Failed to save job settings information to the local filesystem" +e.toString());
+                e.printStackTrace();
             }
         }
 
@@ -407,7 +410,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
             } catch (final Exception e) {
-                LOG.error("Failed to save job ids", e);
+                LOG.error("Failed to save job ids" +e.toString());
+                e.printStackTrace();
             }
         }
 
@@ -415,7 +419,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 SettingsStore.saveSettingsStore(settingsStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save settings information to the local filesystem", e);
+                LOG.error("Failed to save settings information to the local filesystem" +e.toString());
+                e.printStackTrace();
             }
         }
         if (jobWorkers.getTasks().size() != 0) {
@@ -447,6 +452,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
                             }
                         } catch (final Exception e1) {
+                            LOG.error(e1.toString());
                             Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
                         }
                     });

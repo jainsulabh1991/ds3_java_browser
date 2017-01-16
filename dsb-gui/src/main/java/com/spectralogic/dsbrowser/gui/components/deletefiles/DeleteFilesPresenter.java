@@ -82,7 +82,8 @@ public class DeleteFilesPresenter implements Initializable {
             });
 
         } catch (final Throwable e) {
-            LOG.error("Encountered an error making the delete file presenter", e);
+            LOG.error("Encountered an error making the delete file presenter" +e.toString());
+            e.printStackTrace();
         }
     }
 

@@ -120,7 +120,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     try {
                         return new Ds3Object(pair.getFullName(), pair.getSize());
                     } catch (final SecurityException e) {
-                        LOG.error("Exception while creation directories ", e);
+                        LOG.error("Exception while creation directories " +e.toString());
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job failed: " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()) + " " + e.toString(), LogType.SUCCESS));
                         return null;
                     }
@@ -145,7 +145,8 @@ public class Ds3GetJob extends Ds3JobTask {
                     try {
                         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(), ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreeModel.toString(), "GET", bucket);
                     } catch (final Exception e) {
-                        LOG.info("Failed to save job id");
+                        LOG.info("Failed to save job id" +e.toString());
+                        e.printStackTrace();
                     }
                     updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " from " + bucket + " to " + fileTreeModel);
                     if (jobPriority != null && !jobPriority.isEmpty()) {
@@ -218,13 +219,18 @@ public class Ds3GetJob extends Ds3JobTask {
 
         } catch (final Exception e) {
             if (e instanceof InterruptedException) {
+                LOG.error(e.toString());
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled (User Interruption)", LogType.ERROR));
             } else if (e instanceof RuntimeException || e instanceof IllegalFormatException) {
                 if (e instanceof NoSuchElementException) {
+                    LOG.error(e.toString());
                     Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
-                } else
+                } else {
+                    LOG.error(e.toString());
                     Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
+                }
             } else {
+                LOG.error(e.toString());
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
                 final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
@@ -260,6 +266,7 @@ public class Ds3GetJob extends Ds3JobTask {
             directoryValues.stream().forEach(i -> addAllDescendents(i, nodes, path));
 
         } catch (final IOException e) {
+            LOG.error(e.toString());
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
         }
     }

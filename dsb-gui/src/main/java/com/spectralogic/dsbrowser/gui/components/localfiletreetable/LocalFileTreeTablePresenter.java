@@ -138,7 +138,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             initTableView();
             initListeners();
         } catch (final Throwable e) {
-            LOG.error("Encountered an error when creating LocalFileTreeTablePresenter", e);
+            LOG.error("Encountered an error when creating LocalFileTreeTablePresenter" +e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -257,11 +258,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         refreshBlackPearlSideItem(treeItem);
                     }
                 } catch (final IOException e1) {
-                    LOG.info("Failed to cancel job", LogType.ERROR);
+                    LOG.info("Failed to cancel job", LogType.ERROR +e1.toString());
+                    e1.printStackTrace();
                 }
             });
         } catch (final Exception e) {
+            LOG.error(e.toString());
             deepStorageBrowserPresenter.logText("Something went wrong. Reason: " + e.toString(), LogType.ERROR);
+            e.printStackTrace();
         }
     }
 
@@ -290,6 +294,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
                 treeTable.setRoot(rootTreeItem);
             } catch (final Exception e) {
+                LOG.error(e.toString());
                 e.printStackTrace();
             }
             treeTable.getSelectionModel().clearSelection();
@@ -405,7 +410,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
 
                         } catch (final IOException e1) {
-                            LOG.info("Failed to cancel job", LogType.ERROR);
+                            LOG.info("Failed to cancel job", LogType.ERROR +e1.toString());
+                            e1.printStackTrace();
                         }
                     }
                 });
@@ -506,7 +512,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     else
                                         refreshFileTreeView();
                                 } catch (final IOException e1) {
+                                    LOG.error(e1.toString());
                                     deepStorageBrowserPresenter.logText(" Failed to cancel job. ", LogType.ERROR);
+                                    e1.printStackTrace();
                                 }
                             });
                         }
@@ -671,6 +679,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                         }
                                     } catch (final Exception e) {
                                         LOG.info("Unable to sort", e.toString());
+                                        e.printStackTrace();
                                     }
                                 }
                             }

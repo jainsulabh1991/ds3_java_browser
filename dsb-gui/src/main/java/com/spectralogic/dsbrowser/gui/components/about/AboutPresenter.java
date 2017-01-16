@@ -1,9 +1,12 @@
 package com.spectralogic.dsbrowser.gui.components.about;
 
+import com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.IOException;
@@ -14,6 +17,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class AboutPresenter implements Initializable {
+    private final Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
     @FXML
     private Label copyRightLabel1, copyRightLabel2;
     @FXML
@@ -36,8 +40,10 @@ public class AboutPresenter implements Initializable {
             try {
                 Desktop.getDesktop().browse(new URI("http://www.apache.org/licenses/LICENSE-2.0"));
             } catch (final IOException e1) {
+                LOG.error(e1.toString());
                 e1.printStackTrace();
             } catch (final URISyntaxException e1) {
+                LOG.error(e1.toString());
                 e1.printStackTrace();
             }
         });

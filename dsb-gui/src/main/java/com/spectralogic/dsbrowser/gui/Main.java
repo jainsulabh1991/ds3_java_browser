@@ -160,14 +160,16 @@ public class Main extends Application {
             try {
                 SavedSessionStore.saveSavedSessionStore(savedSessionStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save session information to the local filesystem", e);
+                LOG.error("Failed to save session information to the local filesystem" +e.toString());
+                e.printStackTrace();
             }
         }
         if (savedJobPrioritiesStore != null) {
             try {
                 SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save job settings information to the local filesystem", e);
+                LOG.error("Failed to save job settings information to the local filesystem" +e.toString());
+                e.printStackTrace();
             }
         }
 
@@ -175,7 +177,8 @@ public class Main extends Application {
             try {
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
             } catch (final Exception e) {
-                LOG.error("Failed to save job ids", e);
+                LOG.error("Failed to save job ids" +e.toString());
+                e.printStackTrace();
             }
         }
 
@@ -183,7 +186,8 @@ public class Main extends Application {
             try {
                 SettingsStore.saveSettingsStore(settings);
             } catch (final IOException e) {
-                LOG.error("Failed to save settings information to the local filesystem", e);
+                LOG.error("Failed to save settings information to the local filesystem" +e.toString());
+                e.printStackTrace();
             }
         }
         if (jobWorkers.getTasks().size() != 0) {
@@ -216,7 +220,8 @@ public class Main extends Application {
                             }
                             closeEvent.consume();
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            Platform.runLater(() -> LOG.info("Failed to cancel job" +e1.toString()));
+                            e1.printStackTrace();
                             closeEvent.consume();
                         }
                     });
