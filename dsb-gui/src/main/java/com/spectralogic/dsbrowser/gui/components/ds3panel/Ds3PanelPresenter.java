@@ -38,6 +38,7 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -76,6 +77,10 @@ public class Ds3PanelPresenter implements Initializable {
 
     @FXML
     private Label ds3PathIndicator;
+
+    @FXML
+    private Label infoLabel;
+
 
     @FXML
     private Tooltip ds3PathIndicatorTooltip;
@@ -136,6 +141,11 @@ public class Ds3PanelPresenter implements Initializable {
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView = null;
 
+    private GetItemsTask itemsTask;
+
+    private ListBucketResult listBucketResult;
+
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -185,6 +195,11 @@ public class Ds3PanelPresenter implements Initializable {
 
     public Tooltip getDs3PathIndicatorTooltip() {
         return ds3PathIndicatorTooltip;
+    }
+
+
+    public Label getInfoLabel() {
+        return infoLabel;
     }
 
 
@@ -342,6 +357,7 @@ public class Ds3PanelPresenter implements Initializable {
                 if (ds3SessionTabPane.getTabs().size() == 1) {
                     disableMenu(true);
                 }
+                ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
             } else if (c.wasAdded()) {
                 disableMenu(false);
             }
@@ -830,11 +846,26 @@ public class Ds3PanelPresenter implements Initializable {
             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
         } else {
             try {
-                final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
+                GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
-                final SearchJob searchJob = new SearchJob(buckets, deepStorageBrowserPresenter, ds3TreeTableView, ds3PathIndicator, newValue, session, workers);
-
+                final List<Bucket> searchableBuckets = new ArrayList<>();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = getTreeTableView().getSelectionModel().getSelectedItems();
+                if (null == selectedItem || selectedItem.size() == 0) {
+                    selectedItem = FXCollections.observableArrayList();
+                    selectedItem.add(getTreeTableView().getRoot());
+                }
+                if (selectedItem.size() != 0) {
+                    selectedItem.stream().forEach(temp1 -> {
+                        buckets.stream().forEach(temp2 -> {
+                            if (temp2.getName().equals(temp1.getValue().getBucketName()))
+                                searchableBuckets.add(temp2);
+                        });
+                    });
+                } else {
+                    searchableBuckets.addAll(buckets);
+                }
+                final SearchJob searchJob = new SearchJob(searchableBuckets, deepStorageBrowserPresenter, ds3TreeTableView, ds3PathIndicator, newValue, session, workers);
                 workers.execute(searchJob);
 
                 searchJob.setOnSucceeded(event -> LOG.info("Search completed!"));
@@ -900,6 +931,67 @@ public class Ds3PanelPresenter implements Initializable {
 
     public String getSearchedText() {
         return ds3PanelSearch.getText();
+    }
+
+
+    public void calculateFiles(final String bucketName, Ds3TreeTableValue.Type type, String directoryFullName, TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+        if (itemsTask != null)
+            itemsTask.cancel(true);
+        try {
+            itemsTask = new GetItemsTask(bucketName, type, directoryFullName);
+            workers.execute(itemsTask);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        itemsTask.setOnSucceeded(event -> {
+            final long[] totalSize = {0};
+            listBucketResult.getObjects().stream().forEach(item -> {
+                totalSize[0] += item.getSize();
+            });
+            Platform.runLater(() -> {
+                int nof = 0;
+                if (listBucketResult.getObjects().size() == 1 && ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getFullName()
+                        .equals(listBucketResult.getObjects().get(0).getKey()) && null == listBucketResult.getNextMarker()) {
+                } else {
+                    nof = listBucketResult.getObjects().size();
+                }
+                String infoMessage = " contains " + listBucketResult.getCommonPrefixes().size()
+                        + " folders and " + nof + " files";
+                ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket" + infoMessage);
+                /*if (ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                    ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket" + infoMessage);
+                } else {
+                    ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Folder" + infoMessage);
+
+                }*/
+            });
+        });
+    }
+
+    private class GetItemsTask extends Task<ListBucketResult> {
+        Ds3TreeTableValue.Type type;
+        String bucketName, directoryFullName;
+
+        public GetItemsTask(final String bucketName, Ds3TreeTableValue.Type type, String directoryFullName) {
+            this.type = type;
+            this.bucketName = bucketName;
+            this.directoryFullName = directoryFullName;
+        }
+
+        @Override
+        protected ListBucketResult call() throws Exception {
+            try {
+                final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/");
+                if (type.equals(Ds3TreeTableValue.Type.Directory))
+                    request.withPrefix(directoryFullName);
+                final GetBucketResponse bucketResponse = getSession().getClient().getBucket(request);
+                listBucketResult = bucketResponse.getListBucketResult();
+                return listBucketResult;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
     }
 
 }

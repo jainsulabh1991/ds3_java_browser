@@ -45,6 +45,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
@@ -62,6 +64,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -401,7 +404,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     deleteFolder.setDisable(false);
                                     deleteBucket.setDisable(true);
                                     createFolder.setDisable(false);
-                                    physicalPlacement.setDisable(true);
+                                    physicalPlacement.setDisable(false);
                                 } else {
                                     deleteFile.setDisable(false);
                                     deleteFolder.setDisable(true);
@@ -560,6 +563,13 @@ public class Ds3TreeTablePresenter implements Initializable {
                     try {
                         if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                             loadMore(row.getTreeItem());
+                        } else if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                        } else {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Calculating...");
+                            ds3PanelPresenter.calculateFiles(row.getTreeItem().getValue().getBucketName(), row.getTreeItem().getValue().getType(),
+                                    row.getTreeItem().getValue().getFullName(), ds3TreeTable);
                         }
                     } catch (Exception e) {
                     }
@@ -568,10 +578,13 @@ public class Ds3TreeTablePresenter implements Initializable {
                         ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
                         if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                             loadMore(row.getTreeItem());
-                        }
-                        //show logical capacity used by bucket
-                        else if(row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                            System.out.println("Bucket Capacity ::" + row.getTreeItem().getValue().getLogicalCapacity() + " "+FileSizeFormat.getFileSizeType(row.getTreeItem().getValue().getLogicalCapacity()));
+                        } else if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                        } else {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Calculating...");
+                            ds3PanelPresenter.calculateFiles(row.getTreeItem().getValue().getBucketName(), row.getTreeItem().getValue().getType(),
+                                    row.getTreeItem().getValue().getFullName(), ds3TreeTable);
                         }
                     } catch (Exception e) {
                     }
@@ -752,10 +765,16 @@ public class Ds3TreeTablePresenter implements Initializable {
             protected PhysicalPlacement call() throws Exception {
                 final Ds3Client client = session.getClient();
                 final Ds3TreeTableValue value = values.get(0).getValue();
+                ds3TreeTable.getSelectionModel().getSelectedItem();
                 List<Ds3Object> list = null;
-                if (null != value && !value.getType().equals(Ds3TreeTableValue.Type.Bucket))
+                if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                     list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
                             .collect(Collectors.toList());
+                }
+//                else if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
+//                    calculateFiles(value.getBucketName(), value.getType(), value.getFullName()).getObjects().stream().map(item -> new Ds3Object(item.getKey(), item.getSize()))
+//                            .collect(Collectors.toList());
+//                }
                 final GetPhysicalPlacementForObjectsSpectraS3Response response = client
                         .getPhysicalPlacementForObjectsSpectraS3(
                                 new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
