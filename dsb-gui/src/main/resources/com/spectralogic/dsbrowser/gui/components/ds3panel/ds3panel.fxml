@@ -155,18 +155,15 @@
                 </Tab>
             </tabs>
         </TabPane>
-        <HBox spacing="10" prefWidth="200" >
-            <VBox spacing="5">
+        <HBox prefWidth="200" spacing="10">
+            <children>
+                <Label fx:id="paneItems" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="200.0" text="items" visible="false" />
+                <Label fx:id="capacityLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="149.0" text="capacity" visible="false" />
+                <Label fx:id="infoLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="219.0" text="calculating" visible="false" />
+            </children>
             <padding>
-                <Insets left="10" right="10" top="0" bottom="5"/>
+                <Insets bottom="5" left="10" right="10" top="5" />
             </padding>
-            <Label alignment="BOTTOM_LEFT" fx:id="capacityLabel" visible="false"/>
-                <Label alignment="BOTTOM_LEFT" fx:id="paneItems" visible="false"/>
-            </VBox>
-            <padding>
-                <Insets left="10" right="10" top="5" bottom="5"/>
-            </padding>
-            <Label alignment="BOTTOM_RIGHT" fx:id="infoLabel" visible="false"/>
         </HBox>
 
 

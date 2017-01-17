@@ -1005,28 +1005,28 @@ public class Ds3PanelPresenter implements Initializable {
                             + " folders and " + noOfFiles + " files";
                     if(selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)){
                         if(noOfFiles == 0 && noOfFolders == 0) {
-                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket contains no item");
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("contains no item");
                         }
                          else {
-                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket" + infoMessage);
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("" + infoMessage);
                         }
                     }
                     else {
                         if(noOfFiles == 0 && noOfFolders == 0) {
-                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Folder contains no item");
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("contains no item");
                         }
                         else {
 
-                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Folder" + infoMessage);
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("" + infoMessage);
                         }
                     }
 
                     //for capacity of bucket or folder
                     if(selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)){
-                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Bucket Capacity :"+FileSizeFormat.getFileSizeType(totalCapacity));
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Bucket("+FileSizeFormat.getFileSizeType(totalCapacity)+")");
                     }
                     else {
-                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Folder Capacity :"+FileSizeFormat.getFileSizeType(totalCapacity));
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Folder("+FileSizeFormat.getFileSizeType(totalCapacity)+")");
                     }
                 }
 

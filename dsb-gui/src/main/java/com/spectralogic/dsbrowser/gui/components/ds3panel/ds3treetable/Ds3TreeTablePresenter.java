@@ -329,7 +329,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(path);
                     }
                 }
-                String info = "Total Items in Pane:"+ds3TreeTable.getExpandedItemCount() + "\t" + "Selected Items:"+ds3TreeTable.getSelectionModel().getSelectedItems().size();
+                final String info = ds3TreeTable.getExpandedItemCount() + " item(s)" + "\t"+ds3TreeTable.getSelectionModel().getSelectedItems().size()+" item(s) selected";
                 ds3PanelPresenter.getPaneItems().setVisible(true);
                 ds3PanelPresenter.getPaneItems().setText(info);
             }
@@ -706,7 +706,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.expandedItemCountProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                String info = "Total Items in Pane:"+ds3TreeTable.getExpandedItemCount() + "\t" + "Selected Items:"+ds3TreeTable.getSelectionModel().getSelectedItems().size();
+                final String info = ""+ds3TreeTable.getExpandedItemCount() + "item(s)" + "\t"+ds3TreeTable.getSelectionModel().getSelectedItems().size()+" item(s) selected";
                 ds3PanelPresenter.getPaneItems().setVisible(true);
                 ds3PanelPresenter.getPaneItems().setText(info);
             }
