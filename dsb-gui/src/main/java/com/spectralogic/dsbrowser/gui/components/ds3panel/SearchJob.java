@@ -57,7 +57,7 @@ public class SearchJob extends Task<String> {
                 if (bucket.getName().contains(seachText)) {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + seachText,
                             LogType.INFO));
-                    final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, "--", "--", false, null,bucket.getLogicalUsedCapacity());
+                    final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, "--", "--", false, null);
                     list.add(new Ds3TreeTableItem(value.getName(), session, value, workers));
                 } else {
                     final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(bucket.getName()).withName("%" + seachText + "%").withIncludePhysicalPlacement(true);

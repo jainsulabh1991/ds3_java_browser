@@ -33,19 +33,19 @@ public class Ds3TreeTableValue implements Serializable {
     }
 
 
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox , final long logicalCapacity) {
-        this.bucketName = bucketName;
-        this.fullName = name;
-        this.name = getLastPart(name, type);
-        this.fullPath = getPathExcludeName(bucketName, fullName);
-        this.type = type;
-        this.size = size;
-        this.lastModified = lastModified;
-        this.physicalPlacementHBox = physicalPlacementHBox;
-        this.owner = owner;
-        this.searchOn = searchOn;
-        this.logicalCapacity = logicalCapacity;
-    }
+//    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox , final long logicalCapacity) {
+//        this.bucketName = bucketName;
+//        this.fullName = name;
+//        this.name = getLastPart(name, type);
+//        this.fullPath = getPathExcludeName(bucketName, fullName);
+//        this.type = type;
+//        this.size = size;
+//        this.lastModified = lastModified;
+//        this.physicalPlacementHBox = physicalPlacementHBox;
+//        this.owner = owner;
+//        this.searchOn = searchOn;
+//        this.logicalCapacity = logicalCapacity;
+//    }
 
     //constructor with marker
     public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox, final String marker) {

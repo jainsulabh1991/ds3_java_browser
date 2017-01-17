@@ -1069,16 +1069,15 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
-            GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
-            final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
-            if (response.getBucketListResult().getBuckets() != null) {
-                final List<Ds3TreeTableValue> buckets = response.getBucketListResult()
+            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
+            if (response.getListAllMyBucketsResult().getBuckets() != null) {
+                final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                         .getBuckets().stream()
                         .map(bucket -> {
                             final HBox hbox = new HBox();
                             hbox.getChildren().add(new Label("----"));
                             hbox.setAlignment(Pos.CENTER);
-                            return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox,bucket.getLogicalUsedCapacity());
+                            return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
                         })
                         .collect(Collectors.toList());
                 buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
