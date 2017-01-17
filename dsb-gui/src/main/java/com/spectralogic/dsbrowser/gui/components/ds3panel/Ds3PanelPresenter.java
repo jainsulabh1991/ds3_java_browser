@@ -175,7 +175,8 @@ public class Ds3PanelPresenter implements Initializable {
             final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
             workers.execute(backgroundTask);
         } catch (final Throwable e) {
-            LOG.error("Encountered error when creating Ds3PanelPresenter", e);
+            LOG.error("Encountered error when creating Ds3PanelPresenter" +e.toString());
+            e.printStackTrace();
             throw e;
         }
     }
@@ -228,6 +229,8 @@ public class Ds3PanelPresenter implements Initializable {
                 ds3Common.getDs3PanelPresenter().getTreeTableView().setPlaceholder(new StackPane(progress));
                 ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh(ds3Common);
             } catch (Exception e) {
+                LOG.error(e.toString());
+                e.printStackTrace();
             }
         }
     }
@@ -308,6 +311,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 ds3Common.getCurrentTabPane().clear();
                             }
                         } catch (final Exception e) {
+                            LOG.error(e.toString());
                             e.printStackTrace();
                         }
 
@@ -359,7 +363,8 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                         }
                     } catch (final Exception e) {
-                        LOG.info("Not able to parse");
+                        LOG.info("Not able to parse" +e.toString());
+                        e.printStackTrace();
                     }
                 }
         );
@@ -504,16 +509,19 @@ public class Ds3PanelPresenter implements Initializable {
                             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                             deepStorageBrowserPresenter.logText("GET Job Cancelled", LogType.ERROR);
                         } catch (final IOException e1) {
-                            LOG.info("Failed to cancel job", LogType.ERROR);
+                            LOG.info("Failed to cancel job", LogType.ERROR +e1.toString());
+                            e1.printStackTrace();
                         }
                     }
                     refreshLocalSideView(selectedItemsAtDestination, treeTable, fileRootItemLabel, fileRootItem);
                 });
 
             } catch (final Exception e) {
+                LOG.error(e.toString());
                 deepStorageBrowserPresenter.logText("Something went wrong", LogType.ERROR);
                 ALERT.setContentText("Something went wrong");
                 ALERT.showAndWait();
+                e.printStackTrace();
             }
         } else {
             ALERT.setContentText("Invalid Session!");
@@ -632,12 +640,12 @@ public class Ds3PanelPresenter implements Initializable {
                             deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);  });
                     } catch (final IOException e) {
                         if (e instanceof FailedRequestException) {
-                            LOG.error("Failed to delete Buckets" + e);
+                            LOG.error("Failed to delete Buckets" + e.toString());
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket : " + ((FailedRequestException) e).getError().getMessage(), LogType.ERROR));
                             ALERT.setContentText("Failed to delete bucket");
                             ALERT.showAndWait();
                         } else {
-                            LOG.error("Failed to delte Bucket " + e);
+                            LOG.error("Failed to delte Bucket " + e.toString());
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete bucket"+ e, LogType.ERROR));
                             ALERT.setContentText("Failed to delete Bucket");
                             ALERT.showAndWait();
@@ -684,9 +692,10 @@ public class Ds3PanelPresenter implements Initializable {
                     });
                 } catch (final IOException e) {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete files" + e.toString(), LogType.ERROR));
-                    LOG.error("Failed to delete files" + e);
+                    LOG.error("Failed to delete files" + e.toString());
                     ALERT.setContentText("Failed to delete files");
                     ALERT.showAndWait();
+                    e.printStackTrace();
                 }
                 return null;
             }
@@ -884,6 +893,7 @@ public class Ds3PanelPresenter implements Initializable {
                 searchJob.setOnCancelled(event -> LOG.info("Search cancelled"));
 
             } catch (final Exception e) {
+                LOG.error(e.toString());
                 e.printStackTrace();
             }
         }
@@ -935,7 +945,8 @@ public class Ds3PanelPresenter implements Initializable {
             }
 
         } catch (final Exception e) {
-            LOG.error("could not get bucket response", e);
+            LOG.error("could not get bucket response" +e.toString());
+            e.printStackTrace();
             return false;
         }
 
@@ -958,6 +969,7 @@ public class Ds3PanelPresenter implements Initializable {
             itemsTask = new GetNoOfItemsTask(bucketName, type, directoryFullName);
             workers.execute(itemsTask);
         } catch (Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
         }
         itemsTask.setOnSucceeded(event -> {
@@ -1055,6 +1067,7 @@ public class Ds3PanelPresenter implements Initializable {
                 getNoOfItemsInFolder(listBucketResult);
                 return listBucketResult;
             } catch (Exception e) {
+                LOG.error(e.toString());
                 e.printStackTrace();
                 return null;
             }

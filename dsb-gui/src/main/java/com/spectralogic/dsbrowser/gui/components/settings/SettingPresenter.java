@@ -116,7 +116,8 @@ public class SettingPresenter implements Initializable {
             initGUIElements();
             initPropertyPane();
         } catch (final Throwable e) {
-            LOG.error("Failed to startup settings presenter");
+            LOG.error("Failed to startup settings presenter" +e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -155,6 +156,7 @@ public class SettingPresenter implements Initializable {
             }
 
         } catch (final Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
         }
         closeDialog();
@@ -175,6 +177,7 @@ public class SettingPresenter implements Initializable {
             }
 
         } catch (final Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
         }
         closeDialog();
@@ -187,6 +190,7 @@ public class SettingPresenter implements Initializable {
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             jobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
         } catch (final Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
         }
         closeDialog();

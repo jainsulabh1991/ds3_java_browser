@@ -139,7 +139,8 @@ public class Ds3TreeTablePresenter implements Initializable {
             initContextMenu();
             initTreeTableView();
         } catch (final Throwable e) {
-            LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
+            LOG.error("Encountered error when creating Ds3TreeTablePresenter" +e.toString());
+            e.printStackTrace();
             throw e;
         }
     }
@@ -247,12 +248,12 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                 } catch (final IOException e) {
                     if (e instanceof FailedRequestException) {
-                        LOG.error("Failed to delete files" + e);
+                        LOG.error("Failed to delete files" + e.toString());
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete files : " + ((FailedRequestException) e).getError().getMessage(), LogType.ERROR));
                         ALERT.setContentText("Failed to delete a files");
                         ALERT.showAndWait();
                     } else {
-                        LOG.error("Failed to delete files" + e);
+                        LOG.error("Failed to delete files" + e.toString());
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete files", LogType.ERROR));
                         ALERT.setContentText("Failed to delete a files");
                         ALERT.showAndWait();
@@ -499,7 +500,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                                         ds3TreeTable.getSelectionModel().clearSelection();
                                         ds3TreeTable.getSelectionModel().select(treeItem);
                                     } catch (final Exception ex) {
-                                        LOG.info("Failed to save job ID");
+                                        LOG.info("Failed to save job ID" +ex.toString());
+                                        ex.printStackTrace();
                                     }
 
                                 });
@@ -518,7 +520,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                                             //  deepStorageBrowserPresenter.logText("PUT Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS);
                                             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                                         } catch (final IOException e1) {
-                                            LOG.info("Failed to cancel job", LogType.ERROR);
+                                            LOG.info("Failed to cancel job", LogType.ERROR +e1.toString());
+                                            e1.printStackTrace();
                                         }
                                     }
                                     refresh(treeItem);
@@ -577,6 +580,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     row.getTreeItem().getValue().getFullName(), ds3TreeTable);
                         }
                     } catch (Exception e) {
+                        LOG.error(e.toString());
+                        e.printStackTrace();
                     }
                 } else {
                     try {
@@ -595,6 +600,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     row.getTreeItem().getValue().getFullName(), ds3TreeTable);
                         }
                     } catch (Exception e) {
+                        LOG.error(e.toString());
+                        e.printStackTrace();
                     }
                 }
             });
@@ -645,6 +652,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                         }
                                     }
                                 } catch (final Exception e) {
+                                    LOG.error(e.toString());
                                     e.printStackTrace();
 
                                 }
@@ -674,6 +682,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     }
                                 } catch (final Exception e) {
                                     LOG.info("Unable to sort", e.toString());
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -860,12 +869,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                     });
                 } catch (final IOException e) {
                     if (e instanceof FailedRequestException) {
-                        LOG.error("Failed to delete folder" + e);
+                        LOG.error("Failed to delete folder" + e.toString());
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete folder : " + ((FailedRequestException) e).getError().getMessage(), LogType.ERROR));
                         ALERT.setContentText("Failed to delete a folder");
                         ALERT.showAndWait();
                     } else {
-                        LOG.error("Failed to delete folder" + e);
+                        LOG.error("Failed to delete folder" + e.toString());
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete folder", LogType.ERROR));
                         ALERT.setContentText("Failed to delete a folder");
                         ALERT.showAndWait();
@@ -928,12 +937,12 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                         } catch (final IOException e) {
                             if (e instanceof FailedRequestException) {
-                                LOG.error("Failed to delete Buckets" + e);
+                                LOG.error("Failed to delete Buckets" + e.toString());
                                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket : " + ((FailedRequestException) e).getError().getMessage(), LogType.ERROR));
                                 ALERT.setContentText("Failed to delete bucket");
                                 ALERT.showAndWait();
                             } else {
-                                LOG.error("Failed to delete Bucket" + e);
+                                LOG.error("Failed to delete Bucket" + e.toString());
                                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket." + e, LogType.ERROR));
                                 ALERT.setContentText("Failed to delete a bucket");
                                 ALERT.showAndWait();
@@ -1111,7 +1120,8 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
 
         } catch (final Exception e) {
-            LOG.error("could not get bucket response", e);
+            LOG.error("could not get bucket response" +e.toString());
+            e.printStackTrace();
             return false;
         }
 

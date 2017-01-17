@@ -123,7 +123,8 @@ public class Ds3PutJob extends Ds3JobTask {
                         final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
                         folderMap.put(ds3FileName, path);
                     } catch (final IOException e) {
-                        LOG.error("Failed to list files for directory: " + path.toString(), e);
+                        LOG.error("Failed to list files for directory: " + path.toString() +e.toString());
+                        e.printStackTrace();
                     }
                 });
                 final ImmutableSet<Path> partOfDir = partOfDirBuilder.build();
@@ -136,7 +137,8 @@ public class Ds3PutJob extends Ds3JobTask {
                         fileMapBuilder.put(ds3FileName, pair.getValue());
                         return new Ds3Object(ds3FileName, size);
                     } catch (final IOException e) {
-                        LOG.error("Failed to get file size for: " + pair.getValue() + "---" + e);
+                        LOG.error("Failed to get file size for: " + pair.getValue() + "---" + e.toString());
+                        e.printStackTrace();
                         return null;
                     }
                 }).filter(item -> item != null).collect(GuavaCollectors.immutableList());
@@ -149,7 +151,8 @@ public class Ds3PutJob extends Ds3JobTask {
                     final String targetLocation = PathUtil.toDs3Path(bucket, targetDir);
                     ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(), client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, targetLocation, "PUT", bucket);
                 } catch (final Exception e) {
-                    LOG.info("Failed to save job id");
+                    LOG.info("Failed to save job id" +e.toString());
+                    e.printStackTrace();
                 }
                 if (jobPriority != null && !jobPriority.isEmpty()) {
                     client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(job.getJobId()).withPriority(Priority.valueOf(jobPriority)));
@@ -219,12 +222,14 @@ public class Ds3PutJob extends Ds3JobTask {
         } catch (final Exception e) {
             final String newDate = DateFormat.formatDate(new Date());
             if (e instanceof InterruptedException) {
+                LOG.error(e.toString());
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT Job Cancelled (User Interruption)" + " at " + newDate, LogType.ERROR));
             } else if (e instanceof RuntimeException || e instanceof IllegalFormatException) {
                 //cancel the job if it is already running
                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                 Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("PUT Job Failed " + client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString() + " at " + newDate, LogType.ERROR));
             } else {
+                LOG.error(e.toString());
                 Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("PUT Job Failed " + client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString() + " at " + newDate, LogType.ERROR));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
                 final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);

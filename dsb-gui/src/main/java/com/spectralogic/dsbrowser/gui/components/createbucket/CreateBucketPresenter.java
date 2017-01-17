@@ -116,7 +116,7 @@ public class CreateBucketPresenter implements Initializable {
                     });
                     return response;
                 } catch (final IOException e) {
-                    LOG.error("Failed to create bucket" + e);
+                    LOG.error("Failed to create bucket" + e.toString());
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to create bucket" + e.toString(), LogType.ERROR);
                         ALERT.setContentText("Failed to create bucket. Check Logs");

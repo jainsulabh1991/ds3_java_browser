@@ -128,7 +128,8 @@ public class JobInfoPresenter implements Initializable {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                         LOG.info("Cancelled job.");
                     } catch (final IOException e) {
-                        LOG.info("Unable to cancel job ", e);
+                        LOG.info("Unable to cancel job " +e.toString());
+                        e.printStackTrace();
                     } finally {
                         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
@@ -256,6 +257,7 @@ public class JobInfoPresenter implements Initializable {
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS));
                                 ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                             } catch (final IOException e1) {
+                                LOG.error(e1.toString());
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
                             } finally {
                                 final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
@@ -264,6 +266,7 @@ public class JobInfoPresenter implements Initializable {
                             }
                         });
                     } catch (final Exception e) {
+                        LOG.error(e.toString());
                         e.printStackTrace();
                     }
                 });

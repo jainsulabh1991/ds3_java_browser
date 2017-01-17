@@ -55,7 +55,7 @@ public class LocalFileTreeTableProvider {
                 final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
                 lastModified = sdf.format(modifiedTime.toMillis());
             } catch (final IOException e) {
-                LOG.error("Failed to get the size of " + path.toString(), e);
+                LOG.info("Media device detected" + path.toString() +e.toString());
             }
             if (rootDir.equals("My Computer")) {
                 return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
@@ -99,7 +99,8 @@ public class LocalFileTreeTableProvider {
                     return new FileTreeModel(filePath, type, Files.size(filePath), newDepth, lastModified);
                 }
             } catch (final IOException e) {
-                LOG.error("Failed to get file size for: " + filePath.toString(), e);
+                LOG.error("Failed to get file size for: " + filePath.toString() +e.toString());
+                e.printStackTrace();
                 return new FileTreeModel(filePath, FileTreeModel.Type.Error, 0, newDepth, "");
             }
         });

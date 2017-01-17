@@ -17,6 +17,8 @@ import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import javafx.application.Platform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -30,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
+    private final Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJob.class);
 
     private final UUID uuid;
     private final EndpointInfo endpointInfo;
@@ -161,6 +164,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
             }
         } catch (final Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
             if (e instanceof FailedRequestException) {
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job not found. Cancelling job.", LogType.INFO));

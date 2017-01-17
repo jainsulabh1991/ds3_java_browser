@@ -38,7 +38,8 @@ public class PhysicalPlacementPresenter implements Initializable {
         try {
             initTable();
         } catch (final Throwable e) {
-            LOG.error("Failed to create Physical Placement presenter", e);
+            LOG.error("Failed to create Physical Placement presenter" +e.toString());
+            e.printStackTrace();
         }
     }
 

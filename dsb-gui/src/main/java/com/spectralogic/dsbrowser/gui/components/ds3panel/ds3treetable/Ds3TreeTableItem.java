@@ -14,6 +14,7 @@ import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
@@ -35,6 +36,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +49,7 @@ import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlaceme
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
-
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
@@ -284,6 +287,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                     }
                 });
             } catch (final Exception e) {
+                LOG.error(e.toString());
                 e.printStackTrace();
             }
             return partialResults.get();

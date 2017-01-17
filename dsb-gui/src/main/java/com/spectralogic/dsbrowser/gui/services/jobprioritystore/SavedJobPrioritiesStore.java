@@ -31,7 +31,8 @@ public class SavedJobPrioritiesStore {
                 return JsonMapping.fromJson(inputStream, SavedJobPrioritiesStore.class);
             } catch (final Exception e) {
                 Files.delete(PATH);
-                LOG.info("Creating new empty saved job setting store");
+                LOG.info("Creating new empty saved job setting store" +e.toString());
+                e.printStackTrace();
                 final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(JobSettings.DEFAULT);
                 savedJobPrioritiesStore.dirty = true;
                 return savedJobPrioritiesStore;

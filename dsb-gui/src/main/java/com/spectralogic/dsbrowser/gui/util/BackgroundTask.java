@@ -64,6 +64,7 @@ public class BackgroundTask extends Task {
                 Thread.sleep(5000);
             } catch (final Exception e) {
                 LOG.info("object call catch" + e.toString());
+                e.printStackTrace();
             }
         }
 

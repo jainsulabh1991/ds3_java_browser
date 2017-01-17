@@ -138,6 +138,7 @@ public class SettingsStore {
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException ex) {
+                        LOG.error(ex.toString());
                         ex.printStackTrace();
                     }
                 }
@@ -148,6 +149,7 @@ public class SettingsStore {
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException ex) {
+                        LOG.error(ex.toString());
                         ex.printStackTrace();
                     }
                 }
@@ -158,11 +160,13 @@ public class SettingsStore {
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException ex) {
+                        LOG.error(ex.toString());
                         ex.printStackTrace();
                     }
                 }
             });
         } catch (final Exception e) {
+            LOG.error(e.toString());
             e.printStackTrace();
         }
     }
