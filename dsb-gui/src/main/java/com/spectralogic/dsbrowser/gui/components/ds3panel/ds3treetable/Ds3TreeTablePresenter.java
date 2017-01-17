@@ -40,6 +40,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -328,7 +329,11 @@ public class Ds3TreeTablePresenter implements Initializable {
                         ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(path);
                     }
                 }
+                String info = "Total Items in Pane:"+ds3TreeTable.getExpandedItemCount() + "\t" + "Selected Items:"+ds3TreeTable.getSelectionModel().getSelectedItems().size();
+                ds3PanelPresenter.getPaneItems().setVisible(true);
+                ds3PanelPresenter.getPaneItems().setText(info);
             }
+
         });
 /*********Add new buckect on right click when there is no bucket present***************/
         ds3TreeTable.setOnContextMenuRequested(event -> {
@@ -698,6 +703,14 @@ public class Ds3TreeTablePresenter implements Initializable {
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
         workers.execute(getServiceTask);
         ds3TreeTable.setRoot(rootTreeItem);
+        ds3TreeTable.expandedItemCountProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                String info = "Total Items in Pane:"+ds3TreeTable.getExpandedItemCount() + "\t" + "Selected Items:"+ds3TreeTable.getSelectionModel().getSelectedItems().size();
+                ds3PanelPresenter.getPaneItems().setVisible(true);
+                ds3PanelPresenter.getPaneItems().setText(info);
+            }
+        });
         progress.progressProperty().bind(getServiceTask.progressProperty());
         getServiceTask.setOnSucceeded(event -> {
             ds3TreeTable.setPlaceholder(oldPlaceHolder);
@@ -707,6 +720,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
                     final BooleanProperty bb = (BooleanProperty) observable;
                     final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                    ((Ds3TreeTableItem)bean).setDs3TreeTable(ds3TreeTable);
                     ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
                 }
             }));

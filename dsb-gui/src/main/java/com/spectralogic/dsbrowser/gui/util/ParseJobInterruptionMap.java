@@ -262,6 +262,7 @@ public class ParseJobInterruptionMap {
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
             final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
+            System.out.println("expand item refreshCompleteTreeTableView  :"+ ds3TreeTableView.getExpandedItemCount());
             //invisible column of full path
             if (ds3TreeTableView != null && ds3TreeTableView.getColumns() != null) {
                 final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView.getColumns().get(1);

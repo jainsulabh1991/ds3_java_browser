@@ -87,6 +87,10 @@ public class Ds3PanelPresenter implements Initializable {
     private Label capacityLabel;
 
 
+
+    @FXML
+    private Label paneItems;
+
     @FXML
     private Tooltip ds3PathIndicatorTooltip;
 
@@ -212,6 +216,14 @@ public class Ds3PanelPresenter implements Initializable {
         return infoLabel;
     }
 
+    public Label getPaneItems() {
+        return paneItems;
+    }
+
+    public void setPaneItems(Label paneItems) {
+        this.paneItems = paneItems;
+    }
+
     public void setDs3TreeTableView(TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
         this.ds3TreeTableView = ds3TreeTableView;
     }
@@ -230,7 +242,6 @@ public class Ds3PanelPresenter implements Initializable {
                 ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh(ds3Common);
             } catch (Exception e) {
                 LOG.error(e.toString());
-                e.printStackTrace();
             }
         }
     }

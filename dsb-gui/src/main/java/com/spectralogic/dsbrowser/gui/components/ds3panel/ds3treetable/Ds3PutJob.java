@@ -162,6 +162,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
                     totalSent.addAndGet(l);
                 });
+
                 job.attachObjectCompletedListener(obj -> {
                     final  Calendar currentTime = Calendar.getInstance();
                     final String newDate = DateFormat.formatDate(new Date());

@@ -79,6 +79,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.setGraphic(getIcon(value.getType())); // sets the default icon
     }
 
+
     public boolean isAccessedChildren() {
         return accessedChildren;
     }

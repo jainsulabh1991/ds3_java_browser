@@ -156,10 +156,13 @@
             </tabs>
         </TabPane>
         <HBox spacing="10" prefWidth="200" >
+            <VBox spacing="5">
             <padding>
-                <Insets left="10" right="10" top="5" bottom="5"/>
+                <Insets left="10" right="10" top="0" bottom="5"/>
             </padding>
             <Label alignment="BOTTOM_LEFT" fx:id="capacityLabel" visible="false"/>
+                <Label alignment="BOTTOM_LEFT" fx:id="paneItems" visible="false"/>
+            </VBox>
             <padding>
                 <Insets left="10" right="10" top="5" bottom="5"/>
             </padding>
