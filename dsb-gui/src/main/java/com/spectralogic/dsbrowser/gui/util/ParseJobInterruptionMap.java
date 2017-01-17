@@ -268,6 +268,7 @@ public class ParseJobInterruptionMap {
                 ds3TreeTableView.setRoot(selectedRoot);
                 ds3TreeTableView.getSelectionModel().select(selectedRoot);
                 ((Ds3TreeTableItem) selectedRoot).refresh(ds3Common);
+                ds3Common.getDs3PanelPresenter().calculateFiles(selectedRoot.getValue().getBucketName(),selectedRoot.getValue().getType(),selectedRoot.getValue().getFullName(),ds3TreeTableView);
                 ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(selectedRoot.getValue().getFullName());
             } else {
                 final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();

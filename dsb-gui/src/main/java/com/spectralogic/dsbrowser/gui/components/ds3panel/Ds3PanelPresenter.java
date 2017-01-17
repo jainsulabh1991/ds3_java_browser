@@ -6,7 +6,9 @@ import com.spectralogic.ds3client.commands.*;
 import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.models.BucketDetails;
+import com.spectralogic.ds3client.models.Contents;
 import com.spectralogic.ds3client.models.ListBucketResult;
+import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
@@ -81,6 +83,9 @@ public class Ds3PanelPresenter implements Initializable {
     @FXML
     private Label infoLabel;
 
+    @FXML
+    private Label capacityLabel;
+
 
     @FXML
     private Tooltip ds3PathIndicatorTooltip;
@@ -141,9 +146,13 @@ public class Ds3PanelPresenter implements Initializable {
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView = null;
 
-    private GetItemsTask itemsTask;
+    private GetNoOfItemsTask itemsTask;
 
     private ListBucketResult listBucketResult;
+
+    private int noOfFiles = 0;
+    private int noOfFolders = 0;
+    private long totalCapacity = 0;
 
 
     @Override
@@ -202,7 +211,9 @@ public class Ds3PanelPresenter implements Initializable {
         return infoLabel;
     }
 
-
+    public void setDs3TreeTableView(TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+        this.ds3TreeTableView = ds3TreeTableView;
+    }
     private void goToParentDirectory() {
         if (null != ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent()) {
             ds3Common.getDs3PanelPresenter().getTreeTableView()
@@ -225,6 +236,7 @@ public class Ds3PanelPresenter implements Initializable {
     public TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
         return ds3TreeTableView;
     }
+
 
     private void initListeners() {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
@@ -935,44 +947,91 @@ public class Ds3PanelPresenter implements Initializable {
 
 
     public void calculateFiles(final String bucketName, Ds3TreeTableValue.Type type, String directoryFullName, TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+        noOfFolders = 0;
+        noOfFiles = 0;
+        totalCapacity = 0;
+        //if a task for calculating of items is already running and cancel that task
         if (itemsTask != null)
             itemsTask.cancel(true);
         try {
-            itemsTask = new GetItemsTask(bucketName, type, directoryFullName);
+            //start a new task for calculating
+            itemsTask = new GetNoOfItemsTask(bucketName, type, directoryFullName);
             workers.execute(itemsTask);
         } catch (Exception e) {
             e.printStackTrace();
         }
         itemsTask.setOnSucceeded(event -> {
-            final long[] totalSize = {0};
-            listBucketResult.getObjects().stream().forEach(item -> {
-                totalSize[0] += item.getSize();
-            });
-            Platform.runLater(() -> {
-                int nof = 0;
-                if (listBucketResult.getObjects().size() == 1 && ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getFullName()
-                        .equals(listBucketResult.getObjects().get(0).getKey()) && null == listBucketResult.getNextMarker()) {
-                } else {
-                    nof = listBucketResult.getObjects().size();
-                }
-                String infoMessage = " contains " + listBucketResult.getCommonPrefixes().size()
-                        + " folders and " + nof + " files";
-                ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket" + infoMessage);
-                /*if (ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                    ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket" + infoMessage);
-                } else {
-                    ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Folder" + infoMessage);
 
-                }*/
+            Platform.runLater(() -> {
+                ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                        .stream().collect(GuavaCollectors.immutableList());
+                TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
+                if(!values.isEmpty()) {
+                    selectedRoot = values.get(0);
+                }
+                if(selectedRoot == null) {
+                    ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                    ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
+                }
+                else {
+                    ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
+                    ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
+
+                    //for number of files and folders
+                    String infoMessage = " contains " + noOfFolders
+                            + " folders and " + noOfFiles + " files";
+                    if(selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)){
+                        if(noOfFiles == 0 && noOfFolders == 0) {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket contains no item");
+                        }
+                         else {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Bucket" + infoMessage);
+                        }
+                    }
+                    else {
+                        if(noOfFiles == 0 && noOfFolders == 0) {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Folder contains no item");
+                        }
+                        else {
+
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Folder" + infoMessage);
+                        }
+                    }
+
+                    //for capacity of bucket or folder
+                    if(selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)){
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Bucket Capacity :"+FileSizeFormat.getFileSizeType(totalCapacity));
+                    }
+                    else {
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Folder Capacity :"+FileSizeFormat.getFileSizeType(totalCapacity));
+                    }
+                }
+
             });
         });
     }
 
-    private class GetItemsTask extends Task<ListBucketResult> {
+    public Label getCapacityLabel() {
+        return capacityLabel;
+    }
+
+    public void setCapacityLabel(Label capacityLabel) {
+        this.capacityLabel = capacityLabel;
+    }
+
+    public Ds3TreeTablePresenter getDs3TreeTablePresenter() {
+        return ds3TreeTablePresenter;
+    }
+
+    public void setDs3TreeTablePresenter(Ds3TreeTablePresenter ds3TreeTablePresenter) {
+        this.ds3TreeTablePresenter = ds3TreeTablePresenter;
+    }
+
+    private class GetNoOfItemsTask extends Task<ListBucketResult> {
         Ds3TreeTableValue.Type type;
         String bucketName, directoryFullName;
 
-        public GetItemsTask(final String bucketName, Ds3TreeTableValue.Type type, String directoryFullName) {
+        public GetNoOfItemsTask(final String bucketName, Ds3TreeTableValue.Type type, String directoryFullName) {
             this.type = type;
             this.bucketName = bucketName;
             this.directoryFullName = directoryFullName;
@@ -982,15 +1041,54 @@ public class Ds3PanelPresenter implements Initializable {
         protected ListBucketResult call() throws Exception {
             try {
                 final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/");
-                if (type.equals(Ds3TreeTableValue.Type.Directory))
+                if (type.equals(Ds3TreeTableValue.Type.Directory)){
                     request.withPrefix(directoryFullName);
+                }
                 final GetBucketResponse bucketResponse = getSession().getClient().getBucket(request);
                 listBucketResult = bucketResponse.getListBucketResult();
+                if(bucketResponse.getListBucketResult().getObjects().size() >0){
+                    if(bucketResponse.getListBucketResult().getObjects().get(0).getKey().equals(directoryFullName) && bucketResponse.getListBucketResult().getObjects().get(0).getETag() == null)
+                    {
+                        bucketResponse.getListBucketResult().getObjects().remove(0);
+                    }
+                }
+                getNoOfItemsInFolder(listBucketResult);
                 return listBucketResult;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
+        }
+
+        private void getNoOfItemsInFolder(ListBucketResult listBucketResult) {
+            try {
+                noOfFiles = noOfFiles + listBucketResult.getObjects().size();
+                noOfFolders = noOfFolders + listBucketResult.getCommonPrefixes().size();
+                long sum = listBucketResult.getObjects().stream().mapToLong(contents->contents.getSize()).sum();
+                totalCapacity = totalCapacity + sum;
+                if (listBucketResult.getCommonPrefixes().size() != 0) {
+                    for(CommonPrefixes pref : listBucketResult.getCommonPrefixes()) {
+                        final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/");
+
+                            request.withPrefix(pref.getPrefix());
+
+                        final GetBucketResponse bucketResponse = getSession().getClient().getBucket(request);
+                        listBucketResult = bucketResponse.getListBucketResult();
+                        if(bucketResponse.getListBucketResult().getObjects().size() >0){
+                            if(bucketResponse.getListBucketResult().getObjects().get(0).getKey().equals(pref.getPrefix()) && bucketResponse.getListBucketResult().getObjects().get(0).getETag() == null)
+                            {
+                                bucketResponse.getListBucketResult().getObjects().remove(0);
+                            }
+                        }
+                        getNoOfItemsInFolder(listBucketResult);
+                    }
+                }
+            }
+            catch (Exception e) {
+
+            }
+
+
         }
     }
 

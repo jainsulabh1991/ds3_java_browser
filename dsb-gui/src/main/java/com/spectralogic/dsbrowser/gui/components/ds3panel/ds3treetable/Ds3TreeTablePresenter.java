@@ -551,6 +551,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                     ds3TreeTable.setPlaceholder(new StackPane(progress));
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
                     ds3TreeTable.getSelectionModel().select(row.getIndex());
+                    ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
+                    ds3Common.getDs3PanelPresenter().setDs3TreeTableView(ds3TreeTable);
                     if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                         if (checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), row.getTreeItem()))
                             ds3TreeTable.setPlaceholder(null);
@@ -565,9 +567,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                             loadMore(row.getTreeItem());
                         } else if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
                         } else {
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
+                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Calculating...");
+                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Calculating...");
                             ds3PanelPresenter.calculateFiles(row.getTreeItem().getValue().getBucketName(), row.getTreeItem().getValue().getType(),
                                     row.getTreeItem().getValue().getFullName(), ds3TreeTable);
                         }
@@ -580,9 +585,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                             loadMore(row.getTreeItem());
                         } else if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
                         } else {
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
+                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Calculating...");
+                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Calculating...");
                             ds3PanelPresenter.calculateFiles(row.getTreeItem().getValue().getBucketName(), row.getTreeItem().getValue().getType(),
                                     row.getTreeItem().getValue().getFullName(), ds3TreeTable);
                         }

@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -88,6 +89,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
+        final Calendar  jobStartTime = Calendar.getInstance();
         try {
             updateTitle("Checking BlackPearl's health");
             ALERT.setHeaderText(null);
@@ -157,11 +159,15 @@ public class Ds3GetJob extends Ds3JobTask {
                         totalSent.addAndGet(l);
                     });
                     getJob.attachObjectCompletedListener(obj -> {
+                        final  Calendar currentTime = Calendar.getInstance();
                         if (duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)) != null && duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)).equals(true)) {
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         } else {
+                            final long timeElapsedInSeconds  = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                            final long transferRate = (totalSent.get()/2)/timeElapsedInSeconds;
+                            final long timeRemaining = (totalJobSize-(totalSent.get()/2))/transferRate;
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
-                            updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
+                            updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate)+ "PS"  + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
                             updateProgress(totalSent.get(), totalJobSize);
                             // Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         }

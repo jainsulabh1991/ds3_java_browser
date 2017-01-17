@@ -21,9 +21,11 @@ import javafx.application.Platform;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
@@ -51,6 +53,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
+        final Calendar  jobStartTime = Calendar.getInstance();
         try {
             final FilesAndFolderMap filesAndFolderMapMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
             final Ds3Client client = endpointInfo.getClient();
@@ -87,9 +90,13 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             });
 
             job.attachObjectCompletedListener(s -> {
+                final  Calendar currentTime = Calendar.getInstance();
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Successfully transferred: " + s + " to " + filesAndFolderMapMap.getTargetLocation(), LogType.SUCCESS));
-                updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
-            });
+                final long timeElapsedInSeconds  = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                final long transferRate = (totalSent.get()/2)/timeElapsedInSeconds;
+                final long timeRemaining = (totalJobSize-(totalSent.get()/2))/transferRate;
+                updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate)+ "PS"  + "  Time remaining " + DateFormat.timeConversion(timeRemaining) +FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
+             });
 
 
             final Path finalFileTreeModel = fileTreeModel;
