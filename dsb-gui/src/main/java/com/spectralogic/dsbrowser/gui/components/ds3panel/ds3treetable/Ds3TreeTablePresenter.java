@@ -227,6 +227,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         );
         final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap = filesToDelete.stream().collect(Collectors.groupingBy(Ds3TreeTableValue::getBucketName));
         final Set<String> bukcets = bucketObjectsMap.keySet();
+        final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream().findFirst().get().getParent();
         final Ds3Task task = new Ds3Task(session.getClient()) {
             @Override
             protected Object call() throws Exception {
@@ -242,7 +243,21 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     ds3PanelPresenter.filterChanged(ds3PanelPresenter.getSearchedText());
                                 }
                                 // deepStorageBrmainowserPresenter.logText("Delete response code: " + deleteObjectsResponse.getStatusCode(), LogType.SUCCESS);
+                                if(ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
+                                    ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                                    Platform.runLater( () -> {
+                                        ds3TreeTable.getSelectionModel().clearSelection();
+                                        ds3PanelPresenter.getDs3PathIndicator().setText("");
+                                    });
+
+                                }
+                                else {
+                                    ds3TreeTable.setRoot(selectedItem);
+                                }
+                                ds3TreeTable.getSelectionModel().select(selectedItem);
+                                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                                 deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
+
                             });
                         }
                     }
@@ -264,9 +279,9 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
         };
         DeleteFilesPopup.show(task, null, this);
-        values.stream().forEach(file -> refresh(file.getParent()));
-        ds3TreeTable.getSelectionModel().clearSelection();
-        ds3PanelPresenter.getDs3PathIndicator().setText("");
+       /* values.stream().forEach(file -> refresh(file.getParent()));
+        ds3TreeTable.getSelectionModel().clearSelection();*/
+
     }
 
     private void createFolderPrompt() {
@@ -305,6 +320,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void initTreeTableView() {
+        ds3Common.getDs3PanelPresenter().setDs3TreeTableView(ds3TreeTable);
         fullPath.setText(resourceBundle.getString("fullPath"));
         fileName.setText(resourceBundle.getString("fileName"));
         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -865,6 +881,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             LOG.error("You can only select a single folder to delete");
             return;
         }
+        final TreeItem<Ds3TreeTableValue> selectedItem = values.get(0).getParent();
         final Ds3TreeTableValue value = values.get(0).getValue();
         if (value.getType() != Ds3TreeTableValue.Type.Directory) {
             LOG.error("You can only delete a folder with this command");
@@ -878,7 +895,19 @@ public class Ds3TreeTablePresenter implements Initializable {
                     Platform.runLater(() -> {
                         //  deepStorageBrowserPresenter.logText("Delete response code: " + deleteFolderRecursivelySpectraS3Response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted folder", LogType.SUCCESS);
-                        ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                        if(ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
+                            ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                            Platform.runLater( () -> {
+                                ds3TreeTable.getSelectionModel().clearSelection();
+                                ds3PanelPresenter.getDs3PathIndicator().setText("");
+                            });
+
+                        }
+                        else {
+                            ds3TreeTable.setRoot(selectedItem);
+                        }
+
+                        ds3TreeTable.getSelectionModel().select(selectedItem);
                         ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                     });
                 } catch (final IOException e) {
@@ -898,11 +927,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
         };
         DeleteFilesPopup.show(task, null, this);
-        values.stream().forEach(file -> refresh(file.getParent()));
-        Platform.runLater(() -> {
-            ds3TreeTable.getSelectionModel().clearSelection();
-            ds3PanelPresenter.getDs3PathIndicator().setText("");
-        });
+        /*values.stream().forEach(file -> refresh(file.getParent()));*/
 
     }
 

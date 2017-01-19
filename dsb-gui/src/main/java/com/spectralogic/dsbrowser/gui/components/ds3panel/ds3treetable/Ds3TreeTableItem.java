@@ -3,18 +3,12 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response;
-import com.spectralogic.ds3client.models.BulkObject;
 import com.spectralogic.ds3client.models.Contents;
-import com.spectralogic.ds3client.models.DetailedS3Object;
-import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
@@ -28,7 +22,6 @@ import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
@@ -55,20 +48,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Ds3TreeTableValue ds3Value;
     private final boolean leaf;
     private final Workers workers;
-    private boolean accessedChildren = false;
     private final int pageLength = 1000;
-
-    public void setDs3TreeTable(TreeTableView ds3TreeTable) {
-        this.ds3TreeTable = ds3TreeTable;
-    }
-
+    private final ResourceBundle myResources =
+            ResourceBundle.getBundle("lang", new Locale("en_IN"));
+    private boolean accessedChildren = false;
     private TreeTableView ds3TreeTable;
     private Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final ResourceBundle myResources =
-            ResourceBundle.getBundle("lang", new Locale("en_IN"));
-
-
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers workers) {
         super(value);
         this.bucket = bucket;
@@ -77,15 +63,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.leaf = isLeaf(value);
         this.workers = workers;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
-    }
-
-
-    public boolean isAccessedChildren() {
-        return accessedChildren;
-    }
-
-    public void setAccessedChildren(final boolean accessedChildren) {
-        this.accessedChildren = accessedChildren;
     }
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
@@ -105,6 +82,24 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
     }
 
+    //function for distinction on the basis of some property
+    public static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
+        final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    public void setDs3TreeTable(TreeTableView ds3TreeTable) {
+        this.ds3TreeTable = ds3TreeTable;
+    }
+
+    public boolean isAccessedChildren() {
+        return accessedChildren;
+    }
+
+    public void setAccessedChildren(final boolean accessedChildren) {
+        this.accessedChildren = accessedChildren;
+    }
+
     public void refresh(Ds3Common ds3Common) {
         this.ds3Common = ds3Common;
         if (super.getValue() != null) {
@@ -112,7 +107,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
-        ds3Common.getDs3PanelPresenter().calculateFiles(super.getValue().getBucketName(),super.getValue().getType(),super.getValue().getFullName(),ds3Common.getDs3PanelPresenter().getDs3TreeTableView());
+        ds3Common.getDs3PanelPresenter().calculateFiles(super.getValue().getBucketName(), super.getValue().getType(), super.getValue().getFullName(), ds3Common.getDs3PanelPresenter().getDs3TreeTableView());
         buildChildren(list);
     }
 
@@ -149,9 +144,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         super.setGraphic(processImage);
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
-        getBucketTask.setOnSucceeded(event -> { super.setGraphic(previousGraphics);
-        if(ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3PanelPresenter().getDs3TreeTableView() != null)
-        ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setPlaceholder(null);
+        getBucketTask.setOnSucceeded(event -> {
+            super.setGraphic(previousGraphics);
+            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3PanelPresenter().getDs3TreeTableView() != null)
+                ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setPlaceholder(null);
         });
         getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
         getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));
@@ -293,11 +289,5 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
             }
             return partialResults.get();
         }
-    }
-
-    //function for distinction on the basis of some property
-    public static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
-        final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }

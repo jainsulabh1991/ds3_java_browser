@@ -270,7 +270,7 @@ public class ParseJobInterruptionMap {
                     ds3TreeTableValueTreeTableColumn.setVisible(false);
                 }
             }
-            if (selectedRoot.getValue() != null) {
+            if (selectedRoot!= null && selectedRoot.getValue() != null) {
                 ds3TreeTableView.getSelectionModel().clearSelection();
                 ds3TreeTableView.setRoot(selectedRoot);
                 ds3TreeTableView.getSelectionModel().select(selectedRoot);
