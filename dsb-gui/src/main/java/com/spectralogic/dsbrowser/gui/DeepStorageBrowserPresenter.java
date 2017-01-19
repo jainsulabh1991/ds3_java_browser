@@ -23,10 +23,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
-import com.spectralogic.dsbrowser.gui.util.Popup;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -124,7 +121,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Inject
     private Workers workers;
 
-    private TaskProgressView<Ds3JobTask> jobProgressView;
+    private MyTaskProgressView<Ds3JobTask> jobProgressView;
+
 
     private final Label count = new Label();
 
@@ -146,7 +144,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             final Stage stage = (Stage) CLOSECONFIRMATIONALERT.getDialogPane().getScene().getWindow();
             stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
 
-            jobProgressView = new TaskProgressView<>();
+            jobProgressView = new MyTaskProgressView<>();
             jobProgressView.setPrefHeight(1000);
 
             final VBox jobProgressVBox = new VBox();
@@ -340,7 +338,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         return blackPearl;
     }
 
-    public TaskProgressView<Ds3JobTask> getJobProgressView() {
+    public MyTaskProgressView<Ds3JobTask> getJobProgressView() {
         return jobProgressView;
     }
 

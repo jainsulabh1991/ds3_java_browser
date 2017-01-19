@@ -47,7 +47,7 @@ public class ParseJobInterruptionMap {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParseJobInterruptionMap.class);
 
-    public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final TaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
+    public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final MyTaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
         if (endpoints.stream().filter(i -> i.containsKey(endpoint)).findFirst().isPresent()) {
             final Map<String, Map<String, FilesAndFolderMap>> endpointMap = endpoints.stream().filter(i -> i.containsKey(endpoint)).findFirst().get();
             final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);

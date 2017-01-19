@@ -321,6 +321,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private void initTreeTableView() {
         ds3Common.getDs3PanelPresenter().setDs3TreeTableView(ds3TreeTable);
+        ds3PanelPresenter.getLowerPanel().setVisible(true);
         fullPath.setText(resourceBundle.getString("fullPath"));
         fileName.setText(resourceBundle.getString("fileName"));
         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

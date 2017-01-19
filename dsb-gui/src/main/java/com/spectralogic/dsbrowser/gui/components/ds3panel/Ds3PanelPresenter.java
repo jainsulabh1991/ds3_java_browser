@@ -51,6 +51,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -147,6 +148,9 @@ public class Ds3PanelPresenter implements Initializable {
 
     @Inject
     private Ds3Common ds3Common;
+
+    @FXML
+    private HBox lowerPanel;
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView = null;
 
@@ -339,6 +343,7 @@ public class Ds3PanelPresenter implements Initializable {
                         }
 
                         ds3PathIndicator.setText("");
+                        lowerPanel.setVisible(false);
                         deepStorageBrowserPresenter.logText(newSession.getSessionName() + "-" + newSession.getEndpoint() + " closed.", LogType.ERROR);
                         if (store.size() == 0) {
                             addNewTab.setTooltip(null);
@@ -1016,7 +1021,7 @@ public class Ds3PanelPresenter implements Initializable {
                         //for number of files and folders
                         String infoMessage = " contains " + noOfFolders
                                 + " folders and " + noOfFiles + " files";
-                            if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                        if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                             if (noOfFiles == 0 && noOfFolders == 0) {
                                 ds3Common.getDs3PanelPresenter().getInfoLabel().setText("contains no item");
                             } else {
@@ -1122,6 +1127,14 @@ public class Ds3PanelPresenter implements Initializable {
 
 
         }
+    }
+
+    public HBox getLowerPanel() {
+        return lowerPanel;
+    }
+
+    public void setLowerPanel(HBox lowerPanel) {
+        this.lowerPanel = lowerPanel;
     }
 
 }
