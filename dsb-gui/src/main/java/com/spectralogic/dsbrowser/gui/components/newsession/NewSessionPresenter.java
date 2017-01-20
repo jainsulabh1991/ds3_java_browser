@@ -287,7 +287,7 @@ public class NewSessionPresenter implements Initializable {
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
             ALERT.setContentText("Please Enter Spectra S3 Data Path Secret Key. !!");
             ALERT.showAndWait();
-        } else {
+        } /*else {
             if (model.getDefaultSession()) {
                 savedSessionStore.getSessions().forEach(e -> {
                     if (e.getDefaultSession() != null && e.getDefaultSession() == true) {
@@ -316,7 +316,7 @@ public class NewSessionPresenter implements Initializable {
                             }
                         }
                     }
-            });
+            });*/
             final Session session = model.toSession();
             if (session != null) {
                 final int previousSize = savedSessionStore.getSessions().size();
@@ -346,8 +346,8 @@ public class NewSessionPresenter implements Initializable {
                 ALERT.setContentText("Authentication problem. Please check your credentials");
                 ALERT.showAndWait();
             }
-        }}
-    }
+        }
+
 
     private void closeDialog() {
         final Stage popupStage = (Stage) propertySheetAnchor.getScene().getWindow();
@@ -365,7 +365,7 @@ public class NewSessionPresenter implements Initializable {
         items.add(new PropertyItem(resourceBundle.getString("proxyServer"), model.proxyServerProperty(), "Access Credentials", "Provide in format http(s)://server:port, e.g. \"http://localhost:8080\"", String.class));
         items.add(new PropertyItem(resourceBundle.getString("accessIDLabel"), model.accessKeyProperty(), "Access Credentials", "The Spectra S3 Data Path Access ID", String.class));
         items.add(new PropertyItem(resourceBundle.getString("secretIDLabel"), model.secretKeyProperty(), "Access Credentials", "The Spectra S3 Data Path Secret Key", String.class));
-        items.add(new PropertyItem(resourceBundle.getString("defaultSession"), model.defaultSessionProperty(), "Access Credentials", "The Spectra S3 Data Path Secret Key", Boolean.class));
+       // items.add(new PropertyItem(resourceBundle.getString("defaultSession"), model.defaultSessionProperty(), "Access Credentials", "The Spectra S3 Data Path Secret Key", Boolean.class));
 
         final PropertySheet propertySheet = new PropertySheet(items);
         propertySheet.setMode(PropertySheet.Mode.NAME);
