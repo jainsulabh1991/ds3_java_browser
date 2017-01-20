@@ -89,10 +89,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private ScrollPane scrollPane;
 
     @FXML
-    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, fileProperties;
+    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, selectAllInFolderItem, selectAllInBucketItem;
 
     @FXML
-    private Menu fileMenu, helpMenu, viewMenu;
+    private Menu fileMenu, helpMenu, viewMenu, editMenu;
 
     @FXML
     private BorderPane borderPane;
@@ -312,6 +312,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
         settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
         closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
         viewMenu.setText(resourceBundle.getString("viewMenu"));
+        editMenu.setText(resourceBundle.getString("editMenu"));
+        selectAllInBucketItem.setText(resourceBundle.getString("selectAllInBucketItem"));
+        selectAllInFolderItem.setText(resourceBundle.getString("selectAllInFolderItem"));
         jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
         logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
         helpMenu.setText(resourceBundle.getString("helpMenu"));
@@ -391,7 +394,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 SavedSessionStore.saveSavedSessionStore(savedSessionStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save session information to the local filesystem" +e.toString());
+                LOG.error("Failed to save session information to the local filesystem" + e.toString());
                 e.printStackTrace();
             }
         }
@@ -399,7 +402,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save job settings information to the local filesystem" +e.toString());
+                LOG.error("Failed to save job settings information to the local filesystem" + e.toString());
                 e.printStackTrace();
             }
         }
@@ -408,7 +411,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
             } catch (final Exception e) {
-                LOG.error("Failed to save job ids" +e.toString());
+                LOG.error("Failed to save job ids" + e.toString());
                 e.printStackTrace();
             }
         }
@@ -417,7 +420,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             try {
                 SettingsStore.saveSettingsStore(settingsStore);
             } catch (final IOException e) {
-                LOG.error("Failed to save settings information to the local filesystem" +e.toString());
+                LOG.error("Failed to save settings information to the local filesystem" + e.toString());
                 e.printStackTrace();
             }
         }

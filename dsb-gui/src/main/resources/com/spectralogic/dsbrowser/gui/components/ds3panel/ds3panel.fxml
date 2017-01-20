@@ -1,74 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="600.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0"
-      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
+<VBox prefHeight="400.0" prefWidth="600.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
                 <Button fx:id="ds3ParentDir">
                     <tooltip>
-                        <Tooltip fx:id="ds3ParentDirToolTip"/>
+                        <Tooltip fx:id="ds3ParentDirToolTip" />
                     </tooltip>
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@/images/parent_directory.png"/>
+                                <Image url="@/images/parent_directory.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
                 <Button fx:id="ds3Refresh">
                     <tooltip>
-                        <Tooltip fx:id="ds3RefreshToolTip"/>
+                        <Tooltip fx:id="ds3RefreshToolTip" />
                     </tooltip>
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@/images/refresh.png"/>
+                                <Image url="@/images/refresh.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
                 <Button fx:id="ds3NewBucket" mnemonicParsing="false">
                     <tooltip>
-                        <Tooltip fx:id="ds3NewBucketToolTip"/>
+                        <Tooltip fx:id="ds3NewBucketToolTip" />
                     </tooltip>
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image requestedHeight="45" requestedWidth="45" url="@/images/bucket_add.png"/>
+                                <Image requestedHeight="45" requestedWidth="45" url="@/images/bucket_add.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
                 <Button fx:id="ds3NewFolder">
                     <tooltip>
-                        <Tooltip fx:id="ds3NewFolderToolTip"/>
+                        <Tooltip fx:id="ds3NewFolderToolTip" />
                     </tooltip>
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image requestedHeight="20" requestedWidth="20" url="@/images/folder.png"/>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/folder.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
                 <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
                     <tooltip>
-                        <Tooltip fx:id="ds3DeleteButtonToolTip"/>
+                        <Tooltip fx:id="ds3DeleteButtonToolTip" />
                     </tooltip>
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image requestedHeight="20" requestedWidth="20" url="@/images/delete.png"/>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/delete.png" />
                             </image>
                         </ImageView>
                     </graphic>
@@ -76,42 +89,36 @@
 
                 <Button fx:id="ds3TransferLeft" mnemonicParsing="false">
                     <tooltip>
-                        <Tooltip fx:id="ds3TransferLeftToolTip"/>
+                        <Tooltip fx:id="ds3TransferLeftToolTip" />
                     </tooltip>
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image requestedHeight="20" requestedWidth="20" url="@/images/transfer-left.png"/>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/transfer-left.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
 
-                <AnchorPane prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                            AnchorPane.topAnchor="0.0">
+                <AnchorPane prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <TextField fx:id="ds3PanelSearch" disable="true" layoutY="4.0" layoutX="4.0" prefHeight="30.0"
-                                   prefWidth="200.0" promptText="Type object name to search.."
-                                   AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0"
-                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
+                        <TextField fx:id="ds3PanelSearch" disable="true" layoutX="4.0" layoutY="4.0" prefHeight="30.0" prefWidth="200.0" promptText="Type object name to search.." AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
                             <padding>
-                                <Insets right="21.0"/>
+                                <Insets right="21.0" />
                             </padding>
                         </TextField>
 
-                        <ImageView fitHeight="15.0" fitWidth="20.0" layoutX="180.0" layoutY="10.0" pickOnBounds="true"
-                                   preserveRatio="true" fx:id="imageView">
+                        <ImageView fx:id="imageView" fitHeight="15.0" fitWidth="20.0" layoutX="180.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image requestedHeight="20" requestedWidth="20" url="@/images/lens.png"/>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/lens.png" />
                             </image>
 
                         </ImageView>
                     </children>
                 </AnchorPane>
-                <ImageView fx:id="imageViewForTooltip" fitHeight="10.0" fitWidth="10.0" pickOnBounds="true"
-                           preserveRatio="true">
+                <ImageView fx:id="imageViewForTooltip" fitHeight="10.0" fitWidth="10.0" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="@/images/questionMark.png"/>
+                        <Image url="@/images/questionMark.png" />
                     </image>
                 </ImageView>
 
@@ -119,34 +126,26 @@
         </ToolBar>
         <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
             <children>
-                <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;" text=""
-                       textAlignment="JUSTIFY" textFill="#000" wrapText="true">
+                <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
                     <font>
-                        <Font size="12.0"/>
+                        <Font size="12.0" />
                     </font>
                     <tooltip>
-                        <Tooltip fx:id="ds3PathIndicatorTooltip"/>
+                        <Tooltip fx:id="ds3PathIndicatorTooltip" />
                     </tooltip>
                 </Label>
             </children>
         </Pane>
-        <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB"
-                 VBox.vgrow="ALWAYS">
+        <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
             <tabs>
                 <Tab fx:id="addNewTab" closable="false">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0"
-                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
-                                <VBox alignment="CENTER" layoutX="250.0" layoutY="48.0" prefHeight="331.0"
-                                      prefWidth="600.0" spacing="30.0" AnchorPane.bottomAnchor="0.0"
-                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                      AnchorPane.topAnchor="0.0">
+                                <VBox alignment="CENTER" layoutX="250.0" layoutY="48.0" prefHeight="331.0" prefWidth="600.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
-                                        <Label fx:id="createNewSessionLabel"
-                                               text="Create a New Session to Access a Black Pearl"/>
-                                        <Button fx:id="newSessionButton" mnemonicParsing="false"
-                                                onAction="#newSessionDialog"/>
+                                        <Label fx:id="createNewSessionLabel" text="Create a New Session to Access a Black Pearl" />
+                                        <Button fx:id="newSessionButton" mnemonicParsing="false" onAction="#newSessionDialog" />
                                     </children>
                                 </VBox>
                             </children>
@@ -157,15 +156,13 @@
         </TabPane>
         <HBox fx:id="lowerPanel" prefWidth="200" spacing="10">
             <children>
-                <Label fx:id="paneItems" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="200.0" text="items" visible="false" />
-                <Label fx:id="capacityLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="149.0" text="capacity" visible="false" />
-                <Label fx:id="infoLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="219.0" text="calculating" visible="false" />
+                <Label fx:id="paneItems" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="299.0" visible="false" />
+                <Label fx:id="capacityLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="110.0" visible="false" />
+                <Label fx:id="infoLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="197.0" visible="false" />
             </children>
             <padding>
                 <Insets bottom="5" left="10" right="10" top="5" />
             </padding>
         </HBox>
-
-
     </children>
 </VBox>

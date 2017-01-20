@@ -12,6 +12,8 @@ import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -33,13 +35,23 @@ public class NewSessionModel {
     private final StringProperty secretKey = new SimpleStringProperty();
     private final StringProperty portNo = new SimpleStringProperty();
     private final StringProperty proxyServer = new SimpleStringProperty();
+    private final BooleanProperty defaultSession = new SimpleBooleanProperty();
+
+    public Boolean getDefaultSession() {
+        return defaultSession.get();
+    }
+    public void setDefaultSession (final Boolean defaultSession){this.defaultSession.set(defaultSession);}
+
+    public BooleanProperty defaultSessionProperty() {
+        return defaultSession;
+    }
 
     public String getEndpoint() {
         return endpoint.get();
     }
 
     public void setEndpoint(final String endpoint) {
-        this.endpoint.set(endpoint.trim());
+        this.endpoint.set(endpoint);
     }
 
     public StringProperty endpointProperty() {
@@ -51,7 +63,7 @@ public class NewSessionModel {
     }
 
     public void setAccessKey(final String accessKey) {
-        this.accessKey.set(accessKey.trim());
+        this.accessKey.set(accessKey);
     }
 
     public StringProperty accessKeyProperty() {
@@ -63,7 +75,7 @@ public class NewSessionModel {
     }
 
     public void setSecretKey(final String secretKey) {
-        this.secretKey.set(secretKey.trim());
+        this.secretKey.set(secretKey);
     }
 
     public StringProperty secretKeyProperty() {
@@ -75,7 +87,7 @@ public class NewSessionModel {
     }
 
     public void setSessionName(final String sessionName) {
-        this.sessionName.set(sessionName.trim());
+        this.sessionName.set(sessionName);
     }
 
     public StringProperty sessionNameProperty() {
@@ -83,7 +95,7 @@ public class NewSessionModel {
     }
 
     public void setPortno(final String portNo) {
-        this.portNo.set(portNo.trim());
+        this.portNo.set(portNo);
     }
 
     public StringProperty portNoProperty() {
@@ -125,7 +137,7 @@ public class NewSessionModel {
 
             final GetSystemInformationSpectraS3Response sysreponse = client.getSystemInformationSpectraS3(new GetSystemInformationSpectraS3Request());
             final GetServiceResponse response = client.getService(new GetServiceRequest());
-            return new Session(this.getSessionName().trim(), this.getEndpoint().trim(), this.getPortNo().trim(), this.getProxyServer(), client);
+            return new Session(this.getSessionName().trim(), this.getEndpoint().trim(), this.getPortNo().trim(), this.getProxyServer(), client, this.getDefaultSession());
 
 
         } catch (final UnknownHostException e) {

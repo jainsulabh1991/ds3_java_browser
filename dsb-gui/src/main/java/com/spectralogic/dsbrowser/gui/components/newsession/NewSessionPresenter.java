@@ -4,6 +4,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Response;
+import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -13,12 +14,14 @@ import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.PropertyItem;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.controlsfx.control.PropertySheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class NewSessionPresenter implements Initializable {
 
@@ -34,11 +40,15 @@ public class NewSessionPresenter implements Initializable {
 
     private final NewSessionModel model = new NewSessionModel();
 
+    @Inject
+    private Session session;
+
     @FXML
     private AnchorPane propertySheetAnchor;
 
     @FXML
     private TableView<SavedSession> savedSessions;
+    //private DefaultSessionSettings defaultSessionSettings;
 
     @Inject
     private Ds3SessionStore store;
@@ -62,6 +72,8 @@ public class NewSessionPresenter implements Initializable {
 
     private final Alert ALERTINFO = new Alert(Alert.AlertType.INFORMATION);
 
+    private final Alert DEFAULTSESSIONCONFIRMATIONALERT = new Alert(Alert.AlertType.CONFIRMATION);
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -71,11 +83,13 @@ public class NewSessionPresenter implements Initializable {
             stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             final Stage stageInfo = (Stage) ALERTINFO.getDialogPane().getScene().getWindow();
             stageInfo.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            final Stage confirmstageInfo = (Stage) DEFAULTSESSIONCONFIRMATIONALERT.getDialogPane().getScene().getWindow();
+            confirmstageInfo.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             initGUIElement();
             initSessionList();
             initPropertySheet();
         } catch (final Exception e) {
-            LOG.error("Failed to load NewSessionPresenter" +e.toString());
+            LOG.error("Failed to load NewSessionPresenter" + e.toString());
             e.printStackTrace();
         }
     }
@@ -104,6 +118,11 @@ public class NewSessionPresenter implements Initializable {
                 model.setPortno(newSelection.getPortNo());
                 model.setSecretKey(newSelection.getCredentials().getSecretKey());
                 model.setProxyServer(newSelection.getProxyServer());
+                if (newSelection.getDefaultSession() == null) {
+                    model.setDefaultSession(false);
+                } else {
+                    model.setDefaultSession(newSelection.getDefaultSession());
+                }
             } else {
                 clearFields();
             }
@@ -152,7 +171,7 @@ public class NewSessionPresenter implements Initializable {
         try {
             final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint() + ":" + rowData.getPortNo(), rowData.getCredentials().toCredentials()).withHttps(false).withProxy(rowData.getProxyServer()).build();
             final GetUserSpectraS3Response userSpectraS3 = client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId()));
-            return new Session(rowData.getName(), rowData.getEndpoint(), rowData.getPortNo(), rowData.getProxyServer(), client);
+            return new Session(rowData.getName(), rowData.getEndpoint(), rowData.getPortNo(), rowData.getProxyServer(), client, rowData.getDefaultSession());
         } catch (final Exception e) {
             LOG.error(e.toString());
             e.printStackTrace();
@@ -185,6 +204,7 @@ public class NewSessionPresenter implements Initializable {
         model.setPortno("80");
         model.setProxyServer(null);
         model.setSessionName(null);
+        model.setDefaultSession(false);
     }
 
     public void createSession() {
@@ -268,6 +288,35 @@ public class NewSessionPresenter implements Initializable {
             ALERT.setContentText("Please Enter Spectra S3 Data Path Secret Key. !!");
             ALERT.showAndWait();
         } else {
+            if (model.getDefaultSession()) {
+                savedSessionStore.getSessions().forEach(e -> {
+                    if (e.getDefaultSession() != null && e.getDefaultSession() == true) {
+                        DEFAULTSESSIONCONFIRMATIONALERT.setContentText("You already have a default session marked. Do you want to make this session as default session");
+                        final Optional<ButtonType> closeResponse = DEFAULTSESSIONCONFIRMATIONALERT.showAndWait();
+                        if (closeResponse.get().equals(ButtonType.OK)) {
+                            model.setDefaultSession(true);
+                            NewSessionModel newModel = new NewSessionModel();
+                            newModel.setSessionName(e.getName());
+                            newModel.setDefaultSession(false);
+                            newModel.setAccessKey(e.getCredentials().getAccessId());
+                            newModel.setSecretKey(e.getCredentials().getSecretKey());
+                            newModel.setEndpoint(e.getEndpoint());
+                            newModel.setPortno(e.getPortNo());
+                            newModel.setProxyServer(e.getProxyServer());
+                            final Session session = newModel.toSession();
+                            if (session != null) {
+                                final int i = savedSessionStore.saveSession(session);
+                                savedSessions.getSelectionModel().select(i);
+                                try {
+                                    SavedSessionStore.saveSavedSessionStore(savedSessionStore);
+                                } catch (final IOException ex) {
+                                    LOG.error(ex.toString());
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+            });
             final Session session = model.toSession();
             if (session != null) {
                 final int previousSize = savedSessionStore.getSessions().size();
@@ -297,7 +346,7 @@ public class NewSessionPresenter implements Initializable {
                 ALERT.setContentText("Authentication problem. Please check your credentials");
                 ALERT.showAndWait();
             }
-        }
+        }}
     }
 
     private void closeDialog() {
@@ -309,12 +358,14 @@ public class NewSessionPresenter implements Initializable {
 
         final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
 
+
         items.add(new PropertyItem(resourceBundle.getString("nameLabel"), model.sessionNameProperty(), "Access Credentials", "The name for the session", String.class));
         items.add(new PropertyItem(resourceBundle.getString("endpointLabel"), model.endpointProperty(), "Access Credentials", "The Spectra S3 BlackPearl data path address. Can be a DNS entry or IP address", String.class));
         items.add(new PropertyItem(resourceBundle.getString("portNo"), model.portNoProperty(), "Access Credentials", "The port number for the session", String.class));
         items.add(new PropertyItem(resourceBundle.getString("proxyServer"), model.proxyServerProperty(), "Access Credentials", "Provide in format http(s)://server:port, e.g. \"http://localhost:8080\"", String.class));
         items.add(new PropertyItem(resourceBundle.getString("accessIDLabel"), model.accessKeyProperty(), "Access Credentials", "The Spectra S3 Data Path Access ID", String.class));
         items.add(new PropertyItem(resourceBundle.getString("secretIDLabel"), model.secretKeyProperty(), "Access Credentials", "The Spectra S3 Data Path Secret Key", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("defaultSession"), model.defaultSessionProperty(), "Access Credentials", "The Spectra S3 Data Path Secret Key", Boolean.class));
 
         final PropertySheet propertySheet = new PropertySheet(items);
         propertySheet.setMode(PropertySheet.Mode.NAME);

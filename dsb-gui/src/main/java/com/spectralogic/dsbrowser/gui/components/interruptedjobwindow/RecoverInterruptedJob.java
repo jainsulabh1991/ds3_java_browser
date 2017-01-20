@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobChunksReadyForClientProcessingSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobChunksReadyForClientProcessingSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -103,6 +105,24 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
 
             final Path finalFileTreeModel = fileTreeModel;
+
+            // check whether chunk are available
+            GetJobChunksReadyForClientProcessingSpectraS3Response getJobChunksReadyForClientProcessingSpectraS3Response;
+            while (true){
+                getJobChunksReadyForClientProcessingSpectraS3Response =  ds3Client.getJobChunksReadyForClientProcessingSpectraS3(new GetJobChunksReadyForClientProcessingSpectraS3Request(job.getJobId()));
+                if(getJobChunksReadyForClientProcessingSpectraS3Response.getStatus().equals(GetJobChunksReadyForClientProcessingSpectraS3Response.Status.RETRYLATER)){
+                    for(int retryAfterSeconds=getJobChunksReadyForClientProcessingSpectraS3Response.getRetryAfterSeconds();retryAfterSeconds>=0;retryAfterSeconds--) {
+                        updateMessage("Chunks are not available now, system will retry after " + retryAfterSeconds +" seconds");
+                        Thread.sleep(1000);
+                    }
+                }
+                else {
+                    updateMessage("Recovering ");
+                    break;
+                }
+            }
+
+
             job.transfer(s -> {
                         if (filesAndFolderMapMap.getType().equals("PUT")) {
                             if (files.containsKey(s)) {

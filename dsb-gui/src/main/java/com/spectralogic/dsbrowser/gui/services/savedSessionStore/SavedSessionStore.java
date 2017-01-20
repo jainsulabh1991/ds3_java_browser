@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
@@ -61,6 +63,10 @@ public class SavedSessionStore {
             try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
                 JsonMapping.toJson(outputStream, store);
             }
+            catch (Exception e){
+                LOG.error(e.toString());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -72,7 +78,7 @@ public class SavedSessionStore {
         int index = 0;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
             index = 1;
         } else if (containsSessionName(sessions, session.getSessionName())) {
             final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
@@ -80,14 +86,14 @@ public class SavedSessionStore {
                 index = sessions.indexOf(savedSession);
                 this.sessions.remove(savedSession);
                 this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
             } else {
                 return -1;
             }
 
         } else if (!containsSessionName(sessions, session.getSessionName())) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
             index = sessions.size();
         } else {
             index = -2;
@@ -113,6 +119,8 @@ public class SavedSessionStore {
         } else if (session.getProxyServer() != null) {
             return true;
         }
+        if(savedSession.getDefaultSession()==null||!savedSession.getDefaultSession().equals(session.getDefaultSession()))
+            return true;
         return false;
     }
 

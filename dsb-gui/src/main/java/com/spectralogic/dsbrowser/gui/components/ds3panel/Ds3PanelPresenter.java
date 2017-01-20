@@ -343,7 +343,6 @@ public class Ds3PanelPresenter implements Initializable {
                         }
 
                         ds3PathIndicator.setText("");
-                        lowerPanel.setVisible(false);
                         deepStorageBrowserPresenter.logText(newSession.getSessionName() + "-" + newSession.getEndpoint() + " closed.", LogType.ERROR);
                         if (store.size() == 0) {
                             addNewTab.setTooltip(null);
@@ -1017,29 +1016,33 @@ public class Ds3PanelPresenter implements Initializable {
                     ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
                     ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
 
-                    if(selectedRoot.getValue() != null) {
-                        //for number of files and folders
-                        String infoMessage = " contains " + noOfFolders
-                                + " folders and " + noOfFiles + " files";
-                        if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                            if (noOfFiles == 0 && noOfFolders == 0) {
-                                ds3Common.getDs3PanelPresenter().getInfoLabel().setText("contains no item");
-                            } else {
-                                ds3Common.getDs3PanelPresenter().getInfoLabel().setText("" + infoMessage);
-                            }
-                        } else {
-                            if (noOfFiles == 0 && noOfFolders == 0) {
-                                ds3Common.getDs3PanelPresenter().getInfoLabel().setText("contains no item");
-                            } else {
-                                ds3Common.getDs3PanelPresenter().getInfoLabel().setText("" + infoMessage);
-                            }
+                    //for number of files and folders
+                    String infoMessage = "Contains " + noOfFolders
+                            + " folders and " + noOfFiles + " files";
+                    if(selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)){
+                        if(noOfFiles == 0 && noOfFolders == 0) {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Contains no item");
                         }
-                        //for capacity of bucket or folder
-                        if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Bucket(" + FileSizeFormat.getFileSizeType(totalCapacity) + ")");
-                        } else {
-                            ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Folder(" + FileSizeFormat.getFileSizeType(totalCapacity) + ")");
+                         else {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("" + infoMessage);
                         }
+                    }
+                    else {
+                        if(noOfFiles == 0 && noOfFolders == 0) {
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Contains no item");
+                        }
+                        else {
+
+                            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("" + infoMessage);
+                        }
+                    }
+
+                    //for capacity of bucket or folder
+                    if(selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)){
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Bucket("+FileSizeFormat.getFileSizeType(totalCapacity)+")");
+                    }
+                    else {
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setText("Folder("+FileSizeFormat.getFileSizeType(totalCapacity)+")");
                     }
                 }
 
@@ -1122,10 +1125,7 @@ public class Ds3PanelPresenter implements Initializable {
                 }
             }
             catch (Exception e) {
-
             }
-
-
         }
     }
 

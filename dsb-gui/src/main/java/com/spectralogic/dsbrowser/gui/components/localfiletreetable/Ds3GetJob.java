@@ -7,9 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
@@ -179,6 +177,23 @@ public class Ds3GetJob extends Ds3JobTask {
                         public void metadataRestoreFailed(String s) {
                         }
                     }));
+
+                    // check whether chunk are available
+                    GetJobChunksReadyForClientProcessingSpectraS3Response getJobChunksReadyForClientProcessingSpectraS3Response;
+                    while (true){
+                        getJobChunksReadyForClientProcessingSpectraS3Response =  ds3Client.getJobChunksReadyForClientProcessingSpectraS3(new GetJobChunksReadyForClientProcessingSpectraS3Request(jobId));
+                        if(getJobChunksReadyForClientProcessingSpectraS3Response.getStatus().equals(GetJobChunksReadyForClientProcessingSpectraS3Response.Status.RETRYLATER)){
+                            for(int retryAfterSeconds=getJobChunksReadyForClientProcessingSpectraS3Response.getRetryAfterSeconds();retryAfterSeconds>=0;retryAfterSeconds--) {
+                                updateMessage("Chunks are not available now, system will retry after " + retryAfterSeconds +" seconds");
+                                Thread.sleep(1000);
+                            }
+                        }
+                        else {
+                            updateMessage("Transferring..");
+                            break;
+                        }
+                    }
+
                     getJob.transfer(l -> {
                         final File file = new File(l);
                         String skipPath = null;

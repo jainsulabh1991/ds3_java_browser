@@ -14,7 +14,6 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.settings.WindowSetting;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -22,29 +21,23 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
-import java.net.ServerSocket;
-import java.nio.channels.FileLock;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 public class Main extends Application {
@@ -64,6 +57,27 @@ public class Main extends Application {
     private ResourceBundle resourceBundle = null;
     private Stage primaryStage = null;
     private JobInterruptionStore jobInterruptionStore = null;
+
+
+    /*************************/
+    private static final String WINDOW_POSITION_X = "Window_Position_X";
+    private static final String WINDOW_POSITION_Y = "Window_Position_Y";
+    private static final String WINDOW_WIDTH = "Window_Width";
+    private static final String WINDOW_HEIGHT = "Window_Height";
+    private static final double DEFAULT_X = 10;
+    private static final double DEFAULT_Y = 10;
+    private static final double DEFAULT_WIDTH = 800;
+    private static final double DEFAULT_HEIGHT = 600;
+    private static final String NODE_NAME = "ViewSwitcher";
+    private static final String BUNDLE = "Bundle";
+
+    /*************************/
+
+    Preferences pref = Preferences.userRoot().node(NODE_NAME);
+    double x = pref.getDouble(WINDOW_POSITION_X, DEFAULT_X);
+    double y = pref.getDouble(WINDOW_POSITION_Y, DEFAULT_Y);
+    double width = pref.getDouble(WINDOW_WIDTH, DEFAULT_WIDTH);
+    double height = pref.getDouble(WINDOW_HEIGHT, DEFAULT_HEIGHT);
 
     public static void main(final String[] args) {
         launch(args);
@@ -105,11 +119,10 @@ public class Main extends Application {
         final Scene mainScene = new Scene(mainView.getView());
         primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
-        primaryStage.setHeight(settings.getWindowSettings().getHeight());
-        primaryStage.setWidth(settings.getWindowSettings().getWidth());
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
-        primaryStage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
+        primaryStage.setX(x);
+        primaryStage.setY(y);
+        primaryStage.setWidth(width);
+        primaryStage.setHeight(height);
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
@@ -154,7 +167,11 @@ public class Main extends Application {
     };
 
     private void closeApplication(WindowEvent closeEvent) {
-        settings.setWindowSettings(new WindowSetting(this.primaryStage.getHeight(), this.primaryStage.getWidth()));
+        Preferences preferences = Preferences.userRoot().node(NODE_NAME);
+        preferences.putDouble(WINDOW_POSITION_X, primaryStage.getX());
+        preferences.putDouble(WINDOW_POSITION_Y, primaryStage.getY());
+        preferences.putDouble(WINDOW_WIDTH, primaryStage.getWidth());
+        preferences.putDouble(WINDOW_HEIGHT, primaryStage.getHeight());
         Injector.forgetAll();
         if (savedSessionStore != null) {
             try {

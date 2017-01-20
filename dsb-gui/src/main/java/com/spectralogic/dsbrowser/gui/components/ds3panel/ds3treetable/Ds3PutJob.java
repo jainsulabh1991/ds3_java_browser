@@ -5,9 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.metadata.interfaces.MetadataStoreListener;
@@ -171,7 +169,7 @@ public class Ds3PutJob extends Ds3JobTask {
                         final long timeElapsedInSeconds  = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
                         final long transferRate = (totalSent.get()/2)/timeElapsedInSeconds;
                         final long timeRemaining = (totalJobSize-(totalSent.get()/2))/transferRate;
-                        updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate)+ "PS"  + "  Time remaining " + DateFormat.timeConversion(timeRemaining) +    FileSizeFormat.getFileSizeType(totalSent.get() / 2) + " / " + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferred file -> " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir);
+                        updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate)+ "/s"  + "  Time remaining " + DateFormat.timeConversion(timeRemaining) +    FileSizeFormat.getFileSizeType(totalSent.get() / 2) + " / " + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferred file -> " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir);
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred (BlackPearl cache): " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir + " at " + newDate, LogType.SUCCESS));
                     } else {
                         updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + " / " + FileSizeFormat.getFileSizeType(totalJobSize) + "Transferred file -> " + obj.substring(0, obj.length()) + " to " + bucket + "/" + targetDir);
@@ -187,17 +185,35 @@ public class Ds3PutJob extends Ds3JobTask {
                         }
                     }));
                     // Path file = fileMapper.get(filename);
+
+                    // check whether chunk are available
+                    GetJobChunksReadyForClientProcessingSpectraS3Response getJobChunksReadyForClientProcessingSpectraS3Response;
+                    while (true){
+                        getJobChunksReadyForClientProcessingSpectraS3Response =  getClient().getJobChunksReadyForClientProcessingSpectraS3(new GetJobChunksReadyForClientProcessingSpectraS3Request(jobId));
+                        if(getJobChunksReadyForClientProcessingSpectraS3Response.getStatus().equals(GetJobChunksReadyForClientProcessingSpectraS3Response.Status.RETRYLATER)){
+                            for(int retryAfterSeconds=getJobChunksReadyForClientProcessingSpectraS3Response.getRetryAfterSeconds();retryAfterSeconds>=0;retryAfterSeconds--) {
+                                updateMessage("Chunks are not available now, system will retry after " + retryAfterSeconds +" seconds");
+                                Thread.sleep(1000);
+                            }
+                        }
+                        else {
+                            updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " in " + bucket + "\\" + targetDir);
+                            break;
+                        }
+                    }
+
+
                     job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 }
                 boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
                 final String dateOfTransfer = DateFormat.formatDate(new Date());
                 if (isCacheJobEnable) {
                     updateProgress(totalJobSize, totalJobSize);
-                    updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket " + bucket + " at location (BlackPearl cache)" + targetDir + " at " + dateOfTransfer + ". Waiting for the storage target allocation.");
+                    updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket " + bucket + " at location (BlackPearl cache)" + targetDir + " at " + dateOfTransfer + ". Waiting for job to complete...");
                     updateProgress(totalJobSize, totalJobSize);
                     Platform.runLater(() -> {
                         final String newDate = DateFormat.formatDate(new Date());
-                        deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed. Files transferred to" + " bucket " + bucket + " at location (BlackPearl cache) " + targetDir + " at " + newDate + ". Waiting for the storage target allocation.", LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("PUT job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed. Files transferred to" + " bucket " + bucket + " at location (BlackPearl cache) " + targetDir + " at " + newDate + ". Waiting for job to complete...", LogType.SUCCESS);
                     });
                     //Can not assign final.
                     GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
