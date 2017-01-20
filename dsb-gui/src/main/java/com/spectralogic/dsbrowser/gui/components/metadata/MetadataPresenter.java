@@ -153,7 +153,7 @@ public class MetadataPresenter implements Initializable {
                 if (metadata.get("ds3-mode").size() > 0) {
                     builder.add(new MetadataEntry("ds3-mode", metadata.get("ds3-mode").stream().findFirst().orElse(null)));
                 }
-                buildRemainMetadata(metadata, builder);
+                //buildRemainMetadata(metadata, builder);
 
             } else {
                 metadata.keys().stream().forEach(key -> metadata.get(key).stream().forEach(value -> builder.add(new MetadataEntry(key, value))));
@@ -164,31 +164,6 @@ public class MetadataPresenter implements Initializable {
             e.printStackTrace();
         }
         return builder;
-    }
-
-    private void buildRemainMetadata(Metadata metadata, ImmutableList.Builder<MetadataEntry> builder) {
-        final Set<String> tempKeys = new HashSet<>();
-        tempKeys.add(creationTimeKey);
-        tempKeys.add(accessTimeKey);
-        tempKeys.add(lastModifiedKey);
-        tempKeys.add("ds3-owner");
-        tempKeys.add("ds3-group");
-        tempKeys.add("ds3-uid");
-        tempKeys.add("ds3-gid");
-        tempKeys.add("ds3-flags");
-        tempKeys.add("ds3-mode");
-        tempKeys.add("ds3-dacl");
-        tempKeys.add("ds3-groupname");
-        tempKeys.add("ds3-permissions");
-        tempKeys.add("ds3-os");
-        tempKeys.add("ds3-ownername");
-        metadata.keys().stream().filter(temp -> {
-            if (!tempKeys.contains(temp))
-                return true;
-            else
-                return false;
-        }).forEach(key -> metadata.get(key).stream().forEach(value -> builder.add(new MetadataEntry(key, value))));
-
     }
 
     private void initLabels() {

@@ -352,6 +352,7 @@ public class Ds3PanelPresenter implements Initializable {
                         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView1 = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
                         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView1.getSelectionModel().getSelectedItems()
                                 .stream().collect(GuavaCollectors.immutableList());
+                        final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView1.getRoot();
                         if (ds3Common.getCurrentSession().size() > 0) {
                             ds3Common.getCurrentSession().clear();
                             ds3Common.getCurrentTabPane().clear();
@@ -365,7 +366,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 ds3TreeTableView1.getSelectionModel().getSelectedItems().size() + " item(s) selected";
                         getPaneItems().setVisible(true);
                         getPaneItems().setText(info);
-                        if (values.size() == 0) {
+                        if (values.size() == 0 && selectedRoot == null) {
                             ds3PathIndicator.setText("");
                             capacityLabel.setVisible(false);
                             infoLabel.setVisible(false);
