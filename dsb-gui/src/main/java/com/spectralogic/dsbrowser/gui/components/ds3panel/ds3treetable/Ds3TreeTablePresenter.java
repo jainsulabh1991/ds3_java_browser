@@ -834,8 +834,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final Ds3Client client = session.getClient();
                 final Ds3TreeTableValue value = values.get(0).getValue();
                 List<Ds3Object> list = null;
-                if (null != value && (value.getType().equals(Ds3TreeTableValue.Type.Bucket)
-                        || value.getType().equals(Ds3TreeTableValue.Type.File))) {
+                if(null != value && (value.getType().equals(Ds3TreeTableValue.Type.Bucket))) {
+
+                }
+                else if (value.getType().equals(Ds3TreeTableValue.Type.File)) {
                     list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
                             .collect(Collectors.toList());
                 } else if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
