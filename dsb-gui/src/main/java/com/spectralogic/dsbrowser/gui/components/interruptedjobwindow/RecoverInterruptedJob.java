@@ -117,7 +117,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                     }
                 }
                 else {
-                    updateMessage("Recovering ");
+                    updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job of " + endpointInfo.getEndpoint() + " " + date);
                     break;
                 }
             }
