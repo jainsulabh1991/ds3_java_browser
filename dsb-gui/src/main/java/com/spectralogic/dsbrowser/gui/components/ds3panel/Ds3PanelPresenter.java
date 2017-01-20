@@ -366,7 +366,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 ds3TreeTableView1.getSelectionModel().getSelectedItems().size() + " item(s) selected";
                         getPaneItems().setVisible(true);
                         getPaneItems().setText(info);
-                        if (values.size() == 0 && selectedRoot == null) {
+                        if (values.size() == 0 ) {
                             ds3PathIndicator.setText("");
                             capacityLabel.setVisible(false);
                             infoLabel.setVisible(false);
