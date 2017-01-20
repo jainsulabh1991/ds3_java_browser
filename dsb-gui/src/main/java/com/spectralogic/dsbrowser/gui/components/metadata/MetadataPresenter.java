@@ -30,6 +30,9 @@ public class MetadataPresenter implements Initializable {
     private Label objectName;
     @FXML
     private Label objectSize;
+
+    @FXML
+    private Label lastModified;
     @FXML
     private Tooltip nameTooltip;
     @FXML
@@ -193,6 +196,7 @@ public class MetadataPresenter implements Initializable {
         metadataTableColValue.setText(resourceBundle.getString("metadataTableColValue"));
         objectName.setText(ds3Metadata.getName());
         objectSize.setText(ByteFormat.humanReadableByteCount(ds3Metadata.getSize(), false));
+        lastModified.setText(ds3Metadata.getLastModified());
         nameTooltip.setText(ds3Metadata.getName());
     }
 

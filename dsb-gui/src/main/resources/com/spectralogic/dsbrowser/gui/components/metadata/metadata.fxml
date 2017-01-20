@@ -41,6 +41,16 @@
                 <Label fx:id="objectSize" prefHeight="17.0" prefWidth="399.0"/>
             </children>
         </HBox>
+        <HBox spacing="10.0">
+            <children>
+                <Label prefHeight="17.0" prefWidth="41.0" text="Last Modified:">
+                    <font>
+                        <Font name="System Bold" size="12.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="lastModified" prefHeight="17.0" prefWidth="399.0"/>
+            </children>
+        </HBox>
         <TableView fx:id="metadataTable" prefHeight="280.0" prefWidth="500.0" style="-fx-wrap-text: true;">
             <columns>
                 <TableColumn fx:id="metadataTableColName" maxWidth="500.0" minWidth="-1.0" prefWidth="240.0">

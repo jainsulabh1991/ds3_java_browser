@@ -856,7 +856,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final Ds3Client client = session.getClient();
                 final Ds3TreeTableValue value = values.get(0).getValue();
                 final HeadObjectResponse headObjectResponse = client.headObject(new HeadObjectRequest(value.getBucketName(), value.getFullName()));
-                return new Ds3Metadata(headObjectResponse.getMetadata(), headObjectResponse.getObjectSize(), value.getFullName());
+
+                return new Ds3Metadata(headObjectResponse.getMetadata(), headObjectResponse.getObjectSize(), value.getFullName(),value.getLastModified());
             }
         };
         workers.execute(getMetadata);
