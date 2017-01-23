@@ -47,6 +47,14 @@
                             </VBox.margin>
                         </AnchorPane>
 
+                        <!--<HBox spacing="25.0">-->
+                            <!--<padding>-->
+                                <!--<Insets top="0" right="0" bottom="0" left="15"/>-->
+                            <!--</padding>-->
+                            <!--<Label fx:id="defaultSession" text="Default Session"/>-->
+                            <!--<CheckBox fx:id="defaultSessionCheckBox"/>-->
+                        <!--</HBox>-->
+
                         <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                             <children>
                                 <Button fx:id="saveSessionButton" mnemonicParsing="false" onAction="#saveSession">

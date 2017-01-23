@@ -184,7 +184,7 @@ public class ParseJobInterruptionMap {
                             }
                         } catch (final Exception e1) {
                             LOG.error(e1.toString());
-                            Platform.runLater(() -> LOG.info("Failed to cancel job" +e1.toString()));
+                            Platform.runLater(() -> LOG.info("Failed to cancel job" + e1.toString()));
                             e1.printStackTrace();
 
                         }
@@ -238,7 +238,7 @@ public class ParseJobInterruptionMap {
                             }
                         } catch (final Exception e1) {
                             LOG.error(e1.toString());
-                            Platform.runLater(() -> LOG.info("Failed to cancel job" +e1.toString()));
+                            Platform.runLater(() -> LOG.info("Failed to cancel job" + e1.toString()));
                             e1.printStackTrace();
                         }
                     });
@@ -269,12 +269,12 @@ public class ParseJobInterruptionMap {
                     ds3TreeTableValueTreeTableColumn.setVisible(false);
                 }
             }
-            if (selectedRoot!= null && selectedRoot.getValue() != null) {
+            if (selectedRoot != null && selectedRoot.getValue() != null) {
                 ds3TreeTableView.getSelectionModel().clearSelection();
                 ds3TreeTableView.setRoot(selectedRoot);
                 ds3TreeTableView.getSelectionModel().select(selectedRoot);
                 ((Ds3TreeTableItem) selectedRoot).refresh(ds3Common);
-                ds3Common.getDs3PanelPresenter().calculateFiles(selectedRoot.getValue().getBucketName(),selectedRoot.getValue().getType(),selectedRoot.getValue().getFullName(),ds3TreeTableView);
+                ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
                 ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(selectedRoot.getValue().getFullName());
             } else {
                 final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();

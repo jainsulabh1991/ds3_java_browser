@@ -55,6 +55,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private TreeTableView ds3TreeTable;
     private Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers workers) {
         super(value);
         this.bucket = bucket;
@@ -107,7 +108,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
-        ds3Common.getDs3PanelPresenter().calculateFiles(super.getValue().getBucketName(), super.getValue().getType(), super.getValue().getFullName(), ds3Common.getDs3PanelPresenter().getDs3TreeTableView());
+        ds3Common.getDs3PanelPresenter().calculateFiles(ds3Common.getDs3PanelPresenter().getDs3TreeTableView());
         buildChildren(list);
     }
 
