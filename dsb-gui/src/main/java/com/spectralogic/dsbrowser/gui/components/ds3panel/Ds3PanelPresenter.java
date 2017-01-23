@@ -26,12 +26,15 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTabl
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
+import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
+import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
@@ -148,6 +151,12 @@ public class Ds3PanelPresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
+
+
+    @Inject
+    private SavedSessionStore savedSessionStore;
+
+
     @FXML
     private HBox lowerPanel;
 
@@ -180,6 +189,22 @@ public class Ds3PanelPresenter implements Initializable {
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
             workers.execute(backgroundTask);
+
+            // open default session when DSB launched
+            final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
+            if(defaultSession.size()==1) {
+                SavedSession savedSession = defaultSession.get(0);
+                NewSessionModel newModel = new NewSessionModel();
+                newModel.setSessionName(savedSession.getName());
+                newModel.setDefaultSession(true);
+                newModel.setAccessKey(savedSession.getCredentials().getAccessId());
+                newModel.setSecretKey(savedSession.getCredentials().getSecretKey());
+                newModel.setEndpoint(savedSession.getEndpoint());
+                newModel.setPortno(savedSession.getPortNo());
+                newModel.setProxyServer(savedSession.getProxyServer());
+                store.addSession(newModel.toSession());
+            }
+
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3PanelPresenter" + e.toString());
             e.printStackTrace();

@@ -107,20 +107,20 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             final Path finalFileTreeModel = fileTreeModel;
 
             // check whether chunk are available
-            GetJobChunksReadyForClientProcessingSpectraS3Response getJobChunksReadyForClientProcessingSpectraS3Response;
-            while (true){
-                getJobChunksReadyForClientProcessingSpectraS3Response =  ds3Client.getJobChunksReadyForClientProcessingSpectraS3(new GetJobChunksReadyForClientProcessingSpectraS3Request(job.getJobId()));
-                if(getJobChunksReadyForClientProcessingSpectraS3Response.getStatus().equals(GetJobChunksReadyForClientProcessingSpectraS3Response.Status.RETRYLATER)){
-                    for(int retryAfterSeconds=getJobChunksReadyForClientProcessingSpectraS3Response.getRetryAfterSeconds();retryAfterSeconds>=0;retryAfterSeconds--) {
-                        updateMessage("Chunks are not available now, system will retry after " + retryAfterSeconds +" seconds");
+            job.attachWaitingForChunksListener(retryAfterSeconds -> {
+                for(int retryTimeRemaining=retryAfterSeconds;retryTimeRemaining>=0;retryTimeRemaining--) {
+                    try {
+                        updateMessage("No available chunks to transfer. Trying again in " +retryTimeRemaining+ "seconds");
                         Thread.sleep(1000);
+                    }catch (Exception e){
+                        LOG.error("Exception in attachWaitingForChunksListener"+ e.getMessage());
                     }
                 }
-                else {
-                    updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job of " + endpointInfo.getEndpoint() + " " + date);
-                    break;
-                }
-            }
+                updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job of " + endpointInfo.getEndpoint() + " " + date);
+            });
+
+
+
 
 
             job.transfer(s -> {

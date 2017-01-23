@@ -187,20 +187,18 @@ public class Ds3PutJob extends Ds3JobTask {
                     // Path file = fileMapper.get(filename);
 
                     // check whether chunk are available
-                    GetJobChunksReadyForClientProcessingSpectraS3Response getJobChunksReadyForClientProcessingSpectraS3Response;
-                    while (true){
-                        getJobChunksReadyForClientProcessingSpectraS3Response =  getClient().getJobChunksReadyForClientProcessingSpectraS3(new GetJobChunksReadyForClientProcessingSpectraS3Request(jobId));
-                        if(getJobChunksReadyForClientProcessingSpectraS3Response.getStatus().equals(GetJobChunksReadyForClientProcessingSpectraS3Response.Status.RETRYLATER)){
-                            for(int retryAfterSeconds=getJobChunksReadyForClientProcessingSpectraS3Response.getRetryAfterSeconds();retryAfterSeconds>=0;retryAfterSeconds--) {
-                                updateMessage("Chunks are not available now, system will retry after " + retryAfterSeconds +" seconds");
+                    job.attachWaitingForChunksListener(retryAfterSeconds -> {
+                        for(int retryTimeRemaining=retryAfterSeconds;retryTimeRemaining>=0;retryTimeRemaining--) {
+                            try {
+                                updateMessage("No available chunks to transfer. Trying again in " +retryTimeRemaining+ "seconds");
                                 Thread.sleep(1000);
+                            }catch (Exception e){
+                                LOG.error("Exception in attachWaitingForChunksListener"+ e.getMessage());
                             }
                         }
-                        else {
-                            updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " in " + bucket + "\\" + targetDir);
-                            break;
-                        }
-                    }
+                        updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " in " + bucket + "\\" + targetDir);
+                    });
+
 
 
                     job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
