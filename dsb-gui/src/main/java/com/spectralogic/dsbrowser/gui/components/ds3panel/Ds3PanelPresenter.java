@@ -188,7 +188,7 @@ public class Ds3PanelPresenter implements Initializable {
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
             workers.execute(backgroundTask);
-            // open default session when DSB launched
+            //open default session when DSB launched
             try {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
                 if (defaultSession.size() == 1) {
@@ -375,45 +375,52 @@ public class Ds3PanelPresenter implements Initializable {
         });
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
                     try {
-                        final VBox vbox = (VBox) newTab.getContent();
-                        @SuppressWarnings("unchecked")
-                        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView1 = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
-                        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView1.getSelectionModel().getSelectedItems()
-                                .stream().collect(GuavaCollectors.immutableList());
-                        final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView1.getRoot();
-                        if (ds3Common.getCurrentSession().size() > 0) {
-                            ds3Common.getCurrentSession().clear();
-                            ds3Common.getCurrentTabPane().clear();
-                        }
-                        final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(newTab.getText())).findFirst().orElse(null);
-                        ds3Common.getCurrentSession().add(session);
-                        ds3Common.getCurrentTabPane().add(ds3SessionTabPane);
-                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), session.getEndpoint() + ":" + session.getPortNo(), deepStorageBrowserPresenter.getJobProgressView(), null);
-                        setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
-                        final String info = ds3TreeTableView1.getExpandedItemCount() + " item(s), " +
-                                ds3TreeTableView1.getSelectionModel().getSelectedItems().size() + " item(s) selected";
-                        getPaneItems().setVisible(true);
-                        getPaneItems().setText(info);
-                        if (values.size() == 0) {
+                        if (newTab.getContent() instanceof VBox) {
+                            final VBox vbox = (VBox) newTab.getContent();
+                            @SuppressWarnings("unchecked")
+                            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView1 = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
+                            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView1.getSelectionModel().getSelectedItems()
+                                    .stream().collect(GuavaCollectors.immutableList());
+                            final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView1.getRoot();
+                            if (ds3Common.getCurrentSession().size() > 0) {
+                                ds3Common.getCurrentSession().clear();
+                                ds3Common.getCurrentTabPane().clear();
+                            }
+                            final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(newTab.getText())).findFirst().orElse(null);
+                            ds3Common.getCurrentSession().add(session);
+                            ds3Common.getCurrentTabPane().add(ds3SessionTabPane);
+                            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), session.getEndpoint() + ":" + session.getPortNo(), deepStorageBrowserPresenter.getJobProgressView(), null);
+                            setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
+                            final String info = ds3TreeTableView1.getExpandedItemCount() + " item(s), " +
+                                    ds3TreeTableView1.getSelectionModel().getSelectedItems().size() + " item(s) selected";
+                            getPaneItems().setVisible(true);
+                            getPaneItems().setText(info);
+                            if (values.size() == 0) {
+                                ds3PathIndicator.setText("");
+                                capacityLabel.setVisible(false);
+                                infoLabel.setVisible(false);
+                            } else {
+                                capacityLabel.setVisible(true);
+                                infoLabel.setVisible(true);
+                                capacityLabel.setText(resourceBundle.getString("infoLabel"));
+                                infoLabel.setText(resourceBundle.getString("infoLabel"));
+                                final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
+                                if (ds3TreeTableValueTreeItem != null) {
+                                    final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
+                                    if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                                        ds3PathIndicator.setText(value.getBucketName() + "/" + value.getFullName());
+                                    } else {
+                                        ds3PathIndicator.setText(value.getBucketName());
+                                    }
+                                    final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTableView1.getSelectionModel().getSelectedItem();
+                                    calculateFiles(ds3TreeTableView1);
+                                }
+                            }
+                        } else {
                             ds3PathIndicator.setText("");
                             capacityLabel.setVisible(false);
                             infoLabel.setVisible(false);
-                        } else {
-                            capacityLabel.setVisible(true);
-                            infoLabel.setVisible(true);
-                            capacityLabel.setText(resourceBundle.getString("infoLabel"));
-                            infoLabel.setText(resourceBundle.getString("infoLabel"));
-                            final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
-                            if (ds3TreeTableValueTreeItem != null) {
-                                final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
-                                if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                                    ds3PathIndicator.setText(value.getBucketName() + "/" + value.getFullName());
-                                } else {
-                                    ds3PathIndicator.setText(value.getBucketName());
-                                }
-                                final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTableView1.getSelectionModel().getSelectedItem();
-                                calculateFiles(ds3TreeTableView1);
-                            }
+                            getPaneItems().setVisible(false);
                         }
                     } catch (final Exception e) {
                         LOG.info("Not able to parse" + e.toString());
@@ -977,7 +984,7 @@ public class Ds3PanelPresenter implements Initializable {
             itemsTask.cancel(true);
         try {
             //start a new task for calculating
-            itemsTask = new GetNoOfItemsTask();
+            itemsTask = new GetNoOfItemsTask(ds3TreeTableView);
             workers.execute(itemsTask);
         } catch (final Exception e) {
             LOG.error(e.toString());
@@ -991,7 +998,7 @@ public class Ds3PanelPresenter implements Initializable {
                 if (!values.isEmpty()) {
                     selectedRoot = values.get(0);
                 }
-                if (selectedRoot == null || selectedRoot.getValue() == null) {
+                if (selectedRoot == null || selectedRoot.getValue() == null || getSession() == null) {
                     ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
                     ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
                 } else {
@@ -1048,6 +1055,10 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private class GetNoOfItemsTask extends Task<FilesCountModel> {
+        TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
+        public GetNoOfItemsTask(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+            this.ds3TreeTableView = ds3TreeTableView;
+        }
 
         @Override
         protected FilesCountModel call() throws Exception {
