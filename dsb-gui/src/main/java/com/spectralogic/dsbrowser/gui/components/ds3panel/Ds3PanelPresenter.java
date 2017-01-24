@@ -190,7 +190,7 @@ public class Ds3PanelPresenter implements Initializable {
             workers.execute(backgroundTask);
             // open default session when DSB launched
             try {
-                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
+                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
                 if (defaultSession.size() == 1) {
                     final SavedSession savedSession = defaultSession.get(0);
                     final NewSessionModel newModel = new NewSessionModel();

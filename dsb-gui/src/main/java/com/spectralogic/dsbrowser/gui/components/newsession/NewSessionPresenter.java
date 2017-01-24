@@ -282,7 +282,7 @@ public class NewSessionPresenter implements Initializable {
             ALERT.showAndWait();
         }else{
             if (model.getDefaultSession()) {
-                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
+                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession() !=null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
                 if (defaultSession.size() == 1) {
                     DEFAULTSESSIONCONFIRMATIONALERT.setContentText("You already have a default session marked. Do you want to make this session as default session");
                     final Optional<ButtonType> closeResponse = DEFAULTSESSIONCONFIRMATIONALERT.showAndWait();

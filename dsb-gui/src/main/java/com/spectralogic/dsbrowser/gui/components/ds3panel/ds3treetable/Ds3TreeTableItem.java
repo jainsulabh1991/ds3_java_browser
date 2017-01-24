@@ -104,7 +104,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     public void refresh(final Ds3Common ds3Common) {
         this.ds3Common = ds3Common;
         if (super.getValue() != null) {
-            this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(super.getValue().getFullName());
+            String path = super.getValue().getFullName();
+            if (!super.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
+                path = super.getValue().getBucketName() + "/" + path;
+
+            this.ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
+            this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
         }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
