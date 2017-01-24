@@ -166,8 +166,8 @@ public class Main extends Application {
         }
     };
 
-    private void closeApplication(WindowEvent closeEvent) {
-        Preferences preferences = Preferences.userRoot().node(NODE_NAME);
+    private void closeApplication(final WindowEvent closeEvent) {
+        final Preferences preferences = Preferences.userRoot().node(NODE_NAME);
         preferences.putDouble(WINDOW_POSITION_X, primaryStage.getX());
         preferences.putDouble(WINDOW_POSITION_Y, primaryStage.getY());
         preferences.putDouble(WINDOW_WIDTH, primaryStage.getWidth());

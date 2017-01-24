@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.ds3client.networking.FailedRequestException;
-import com.spectralogic.dsbrowser.gui.components.about.AboutPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;

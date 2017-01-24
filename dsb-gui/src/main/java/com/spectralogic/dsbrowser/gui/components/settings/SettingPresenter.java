@@ -7,14 +7,12 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.converter.BooleanStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -11,8 +11,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
-import org.controlsfx.control.TaskProgressView;
-
 import java.util.Optional;
 
 public class MyTaskProgressViewSkin<T extends Task<?>> extends
@@ -24,14 +22,14 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
     );
 
 
-    public MyTaskProgressViewSkin(MyTaskProgressView<T> monitor) {
+    public MyTaskProgressViewSkin(final MyTaskProgressView<T> monitor) {
         super(monitor);
 
-        BorderPane borderPane = new BorderPane();
+        final BorderPane borderPane = new BorderPane();
         borderPane.getStyleClass().add("box");
 
         // list view
-        ListView<T> listView = new ListView<>();
+        final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
         listView.setPlaceholder(new Label("No tasks running"));
         listView.setCellFactory(param -> new TaskCell());
@@ -44,13 +42,13 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     class TaskCell extends ListCell<T> {
-        private ProgressBar progressBar;
-        private Label titleText;
-        private Label messageText;
-        private Button cancelButton;
+        private final ProgressBar progressBar;
+        private final Label titleText;
+        private final Label messageText;
+        private final Button cancelButton;
 
         private T task;
-        private BorderPane borderPane;
+        private final BorderPane borderPane;
 
         public TaskCell() {
             titleText = new Label();
@@ -71,7 +69,7 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
                popupCancelTask(task,evt);
             });
 
-            VBox vbox = new VBox();
+            final VBox vbox = new VBox();
             vbox.setSpacing(4);
             vbox.getChildren().add(titleText);
             vbox.getChildren().add(progressBar);
@@ -87,7 +85,7 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
         }
 
         @Override
-        public void updateIndex(int index) {
+        public void updateIndex(final int index) {
             super.updateIndex(index);
 
             /*
@@ -101,7 +99,7 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
         }
 
         @Override
-        protected void updateItem(T task, boolean empty) {
+        protected void updateItem(final T task, final boolean empty) {
             super.updateItem(task, empty);
 
             this.task = task;
@@ -117,9 +115,9 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
                 cancelButton.disableProperty().bind(
                         Bindings.not(task.runningProperty()));
 
-                Callback<T, Node> factory = getSkinnable().getGraphicFactory();
+                final Callback<T, Node> factory = getSkinnable().getGraphicFactory();
                 if (factory != null) {
-                    Node graphic = factory.call(task);
+                    final Node graphic = factory.call(task);
                     if (graphic != null) {
                         BorderPane.setAlignment(graphic, Pos.CENTER);
                         BorderPane.setMargin(graphic, new Insets(0, 4, 0, 0));
@@ -139,7 +137,7 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
         }
     }
 
-    private void popupCancelTask(T task, ActionEvent evt) {
+    private void popupCancelTask(final T task, final ActionEvent evt) {
         final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
                 ButtonType.OK
         );

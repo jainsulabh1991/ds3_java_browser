@@ -181,7 +181,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 if (isFilePropertiesEnable) {
                     job.withMetadata(new MetadataAccessImpl(fileMapper, new MetadataStoreListener() {
                         @Override
-                        public void onMetadataFailed(String s) {
+                        public void onMetadataFailed(final String s) {
                         }
                     }));
                     // Path file = fileMapper.get(filename);
@@ -192,7 +192,7 @@ public class Ds3PutJob extends Ds3JobTask {
                             try {
                                 updateMessage("No available chunks to transfer. Trying again in " +retryTimeRemaining+ "seconds");
                                 Thread.sleep(1000);
-                            }catch (Exception e){
+                            }catch (final Exception e){
                                 LOG.error("Exception in attachWaitingForChunksListener"+ e.getMessage());
                             }
                         }
@@ -203,7 +203,7 @@ public class Ds3PutJob extends Ds3JobTask {
 
                     job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 }
-                boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
+                final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
                 final String dateOfTransfer = DateFormat.formatDate(new Date());
                 if (isCacheJobEnable) {
                     updateProgress(totalJobSize, totalJobSize);

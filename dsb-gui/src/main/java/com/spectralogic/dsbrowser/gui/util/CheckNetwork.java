@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.dsbrowser.gui.components.about.AboutPresenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

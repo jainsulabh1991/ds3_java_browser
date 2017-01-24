@@ -38,17 +38,13 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
@@ -66,9 +62,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class Ds3TreeTablePresenter implements Initializable {
@@ -210,7 +204,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             tempValues = builder.add(root).build().asList();
 
         }
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             LOG.error("You can only recursively delete a folder. Please select the folder to delete, Right click, and select 'Delete Folder...'");
             return;
@@ -599,7 +593,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                             loadMore(row.getTreeItem());
                         }
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         LOG.error(e.toString());
                         e.printStackTrace();
                     }
@@ -615,7 +609,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 loadMore(row.getTreeItem());
                             }
                         }
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         LOG.error(e.toString());
                         e.printStackTrace();
                     }
@@ -716,7 +710,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setRoot(rootTreeItem);
         ds3TreeTable.expandedItemCountProperty().addListener(new ChangeListener<Number>() {
             @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+            public void changed(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
                 final String info = ds3TreeTable.getExpandedItemCount() + " item(s), " + ds3TreeTable.getSelectionModel().getSelectedItems().size() + " item(s) selected";
                 ds3PanelPresenter.getPaneItems().setVisible(true);
                 ds3PanelPresenter.getPaneItems().setText(info);
@@ -782,7 +776,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
     
 
-    private void manageItemsCount(TreeItem<Ds3TreeTableValue> selectedItem) {
+    private void manageItemsCount(final TreeItem<Ds3TreeTableValue> selectedItem) {
         if (ds3TreeTable.getSelectionModel().getSelectedItems().size() == 1
                 && selectedItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
@@ -964,7 +958,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private class GetDirectoryObjects extends Task<ListBucketResult> {
         String bucketName, directoryFullName;
 
-        public GetDirectoryObjects(final String bucketName, String directoryFullName) {
+        public GetDirectoryObjects(final String bucketName, final String directoryFullName) {
             this.bucketName = bucketName;
             this.directoryFullName = directoryFullName;
         }
@@ -977,7 +971,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 listBucketResult = bucketResponse.getListBucketResult();
                 return listBucketResult;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error(e.toString());
                 e.printStackTrace();
                 return null;

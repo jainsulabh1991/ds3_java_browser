@@ -4,7 +4,6 @@ import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsS
 import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
 import com.spectralogic.ds3client.models.DetailedS3Object;
 import com.spectralogic.ds3client.models.S3ObjectType;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;

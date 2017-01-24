@@ -13,7 +13,7 @@ public class FilesCountModel {
         return noOfFolders;
     }
 
-    public void setNoOfFolders(int noOfFolders) {
+    public void setNoOfFolders(final int noOfFolders) {
         this.noOfFolders = noOfFolders;
     }
 
@@ -21,7 +21,7 @@ public class FilesCountModel {
         return noOfFiles;
     }
 
-    public void setNoOfFiles(int noOfFiles) {
+    public void setNoOfFiles(final int noOfFiles) {
         this.noOfFiles = noOfFiles;
     }
 
@@ -29,7 +29,7 @@ public class FilesCountModel {
         return totalCapacity;
     }
 
-    public void setTotalCapacity(long totalCapacity) {
+    public void setTotalCapacity(final long totalCapacity) {
         this.totalCapacity = totalCapacity;
     }
 }

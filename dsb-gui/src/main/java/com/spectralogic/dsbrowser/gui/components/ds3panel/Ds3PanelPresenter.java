@@ -165,9 +165,9 @@ public class Ds3PanelPresenter implements Initializable {
 
     private ListBucketResult listBucketResult;
 
-    private int noOfFiles = 0;
-    private int noOfFolders = 0;
-    private long totalCapacity = 0;
+    private final int noOfFiles = 0;
+    private final int noOfFolders = 0;
+    private final long totalCapacity = 0;
 
 
     @Override
@@ -191,8 +191,8 @@ public class Ds3PanelPresenter implements Initializable {
             // open default session when DSB launched
             final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
             if (defaultSession.size() == 1) {
-                SavedSession savedSession = defaultSession.get(0);
-                NewSessionModel newModel = new NewSessionModel();
+                final SavedSession savedSession = defaultSession.get(0);
+                final NewSessionModel newModel = new NewSessionModel();
                 newModel.setSessionName(savedSession.getName());
                 newModel.setDefaultSession(true);
                 newModel.setAccessKey(savedSession.getCredentials().getAccessId());
@@ -245,11 +245,11 @@ public class Ds3PanelPresenter implements Initializable {
         return paneItems;
     }
 
-    public void setPaneItems(Label paneItems) {
+    public void setPaneItems(final Label paneItems) {
         this.paneItems = paneItems;
     }
 
-    public void setDs3TreeTableView(TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+    public void setDs3TreeTableView(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
         this.ds3TreeTableView = ds3TreeTableView;
     }
 
@@ -271,7 +271,7 @@ public class Ds3PanelPresenter implements Initializable {
                 progress.setMaxSize(90, 90);
                 ds3Common.getDs3PanelPresenter().getTreeTableView().setPlaceholder(new StackPane(progress));
                 ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh(ds3Common);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error(e.toString());
             }
         } else {
@@ -878,7 +878,7 @@ public class Ds3PanelPresenter implements Initializable {
             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
         } else {
             try {
-                GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
+                final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
                 final List<Bucket> searchableBuckets = new ArrayList<>();
@@ -974,13 +974,13 @@ public class Ds3PanelPresenter implements Initializable {
             //start a new task for calculating
             itemsTask = new GetNoOfItemsTask();
             workers.execute(itemsTask);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.error(e.toString());
             e.printStackTrace();
         }
         itemsTask.setOnSucceeded(event -> {
             Platform.runLater(() -> {
-                ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                         .stream().collect(GuavaCollectors.immutableList());
                 TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
                 if (!values.isEmpty()) {
@@ -993,13 +993,13 @@ public class Ds3PanelPresenter implements Initializable {
                     ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
                     ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
                     //for number of files and folders
-                    FilesCountModel filesCountModel = itemsTask.getValue();
+                    final FilesCountModel filesCountModel = itemsTask.getValue();
                     if (null == filesCountModel) {
                         ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
                         ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
                         return;
                     }
-                    String infoMessage = "Contains " + filesCountModel.getNoOfFolders()
+                    final String infoMessage = "Contains " + filesCountModel.getNoOfFolders()
                             + " folders and " + filesCountModel.getNoOfFiles() + " files";
                     if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                         if (filesCountModel.getNoOfFiles() == 0 && filesCountModel.getNoOfFolders() == 0) {
@@ -1030,7 +1030,7 @@ public class Ds3PanelPresenter implements Initializable {
         return capacityLabel;
     }
 
-    public void setCapacityLabel(Label capacityLabel) {
+    public void setCapacityLabel(final Label capacityLabel) {
         this.capacityLabel = capacityLabel;
     }
 
@@ -1038,7 +1038,7 @@ public class Ds3PanelPresenter implements Initializable {
         return ds3TreeTablePresenter;
     }
 
-    public void setDs3TreeTablePresenter(Ds3TreeTablePresenter ds3TreeTablePresenter) {
+    public void setDs3TreeTablePresenter(final Ds3TreeTablePresenter ds3TreeTablePresenter) {
         this.ds3TreeTablePresenter = ds3TreeTablePresenter;
     }
 
@@ -1049,7 +1049,7 @@ public class Ds3PanelPresenter implements Initializable {
             try {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTableView.getSelectionModel().getSelectedItems();
                 final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
-                FilesCountModel filesCountModelTotal = new FilesCountModel();
+                final FilesCountModel filesCountModelTotal = new FilesCountModel();
                 if (selectedItems.isEmpty() && root != null && root.getValue() != null) {
                     selectedItems = FXCollections.observableArrayList();
                     selectedItems.add(root);
@@ -1102,29 +1102,29 @@ public class Ds3PanelPresenter implements Initializable {
                     });
                 }
                 return filesCountModelTotal;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error(e.toString());
                 e.printStackTrace();
                 return null;
             }
         }
 
-        private FilesCountModel getNoOfItemsInFolder(ListBucketResult listBucketResult, FilesCountModel filesCountModel, GetNoOfItemsTask getNoOfItemsTask, String bucketName) {
+        private FilesCountModel getNoOfItemsInFolder(final ListBucketResult listBucketResult, FilesCountModel filesCountModel, final GetNoOfItemsTask getNoOfItemsTask, final String bucketName) {
             try {
                 if (!getNoOfItemsTask.isCancelled()) {
-                    int noOfFiles = filesCountModel.getNoOfFiles() + listBucketResult.getObjects().size();
-                    int noOfFolders = filesCountModel.getNoOfFolders() + listBucketResult.getCommonPrefixes().size();
-                    long sum = listBucketResult.getObjects().stream().mapToLong(contents -> contents.getSize()).sum();
-                    long totalCapacity = filesCountModel.getTotalCapacity() + sum;
+                    final int noOfFiles = filesCountModel.getNoOfFiles() + listBucketResult.getObjects().size();
+                    final int noOfFolders = filesCountModel.getNoOfFolders() + listBucketResult.getCommonPrefixes().size();
+                    final long sum = listBucketResult.getObjects().stream().mapToLong(contents -> contents.getSize()).sum();
+                    final long totalCapacity = filesCountModel.getTotalCapacity() + sum;
                     filesCountModel.setNoOfFiles(noOfFiles);
                     filesCountModel.setNoOfFolders(noOfFolders);
                     filesCountModel.setTotalCapacity(totalCapacity);
                     if (listBucketResult.getCommonPrefixes().size() != 0) {
-                        for (CommonPrefixes pref : listBucketResult.getCommonPrefixes()) {
+                        for (final CommonPrefixes pref : listBucketResult.getCommonPrefixes()) {
                             final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/");
                             request.withPrefix(pref.getPrefix());
                             final GetBucketResponse bucketResponse = getSession().getClient().getBucket(request);
-                            ListBucketResult listBucketResultLocal = bucketResponse.getListBucketResult();
+                            final ListBucketResult listBucketResultLocal = bucketResponse.getListBucketResult();
                             if (bucketResponse.getListBucketResult().getObjects().size() > 0) {
                                 if (bucketResponse.getListBucketResult().getObjects().get(0).getKey().equals(pref.getPrefix()) && bucketResponse.getListBucketResult().getObjects().get(0).getETag() == null) {
                                     bucketResponse.getListBucketResult().getObjects().remove(0);
@@ -1134,7 +1134,7 @@ public class Ds3PanelPresenter implements Initializable {
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
             }
             return filesCountModel;
 
@@ -1145,7 +1145,7 @@ public class Ds3PanelPresenter implements Initializable {
         return lowerPanel;
     }
 
-    public void setLowerPanel(HBox lowerPanel) {
+    public void setLowerPanel(final HBox lowerPanel) {
         this.lowerPanel = lowerPanel;
     }
 

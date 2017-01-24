@@ -14,9 +14,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 public class MetadataPresenter implements Initializable {
 

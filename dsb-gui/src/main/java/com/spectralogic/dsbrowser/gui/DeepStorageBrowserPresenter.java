@@ -42,7 +42,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

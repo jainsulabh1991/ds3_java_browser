@@ -193,8 +193,8 @@ public class JobInfoPresenter implements Initializable {
             protected Object call() throws Exception {
                 endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
                 final Map<String, FilesAndFolderMap> jobIDHashMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                TreeMap<String,FilesAndFolderMap> jobIDTreeMap = new TreeMap<String,FilesAndFolderMap>(jobIDHashMap);
-                Map<String, FilesAndFolderMap> jobIDMap = jobIDTreeMap.descendingMap();
+                final TreeMap<String,FilesAndFolderMap> jobIDTreeMap = new TreeMap<String,FilesAndFolderMap>(jobIDHashMap);
+                final Map<String, FilesAndFolderMap> jobIDMap = jobIDTreeMap.descendingMap();
 
                 if (jobIDMap != null) {
                     jobIDMap.entrySet().stream().forEach(i -> {

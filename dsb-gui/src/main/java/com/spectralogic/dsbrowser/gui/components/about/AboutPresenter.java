@@ -1,6 +1,5 @@
 package com.spectralogic.dsbrowser.gui.components.about;
 
-import com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;

@@ -174,7 +174,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     //get meta data saved on  server
                     getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString(), new MetadataRestoreListener() {
                         @Override
-                        public void metadataRestoreFailed(String s) {
+                        public void metadataRestoreFailed(final String s) {
                         }
                     }));
 
@@ -184,7 +184,7 @@ public class Ds3GetJob extends Ds3JobTask {
                             try {
                                 updateMessage("No available chunks to transfer. Trying again in " +retryTimeRemaining+ "seconds");
                                 Thread.sleep(1000);
-                            }catch (Exception e){
+                            }catch (final Exception e){
                                 LOG.error("Exception in attachWaitingForChunksListener"+ e.getMessage());
                             }
                         }

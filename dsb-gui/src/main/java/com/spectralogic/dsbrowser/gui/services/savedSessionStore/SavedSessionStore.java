@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +19,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
@@ -63,7 +61,7 @@ public class SavedSessionStore {
             try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
                 JsonMapping.toJson(outputStream, store);
             }
-            catch (Exception e){
+            catch (final Exception e){
                 LOG.error(e.toString());
                 e.printStackTrace();
             }

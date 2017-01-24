@@ -287,9 +287,9 @@ public class NewSessionPresenter implements Initializable {
                     DEFAULTSESSIONCONFIRMATIONALERT.setContentText("You already have a default session marked. Do you want to make this session as default session");
                     final Optional<ButtonType> closeResponse = DEFAULTSESSIONCONFIRMATIONALERT.showAndWait();
                     if (closeResponse.get().equals(ButtonType.OK)) {
-                        SavedSession savedSession = defaultSession.get(0);
+                        final SavedSession savedSession = defaultSession.get(0);
                         model.setDefaultSession(true);
-                        NewSessionModel newModel = new NewSessionModel();
+                        final NewSessionModel newModel = new NewSessionModel();
                         newModel.setSessionName(savedSession.getName());
                         newModel.setDefaultSession(false);
                         newModel.setAccessKey(savedSession.getCredentials().getAccessId());

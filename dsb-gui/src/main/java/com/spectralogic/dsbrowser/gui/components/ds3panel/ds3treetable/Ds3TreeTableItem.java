@@ -89,7 +89,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
-    public void setDs3TreeTable(TreeTableView ds3TreeTable) {
+    public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
     }
 
@@ -101,7 +101,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.accessedChildren = accessedChildren;
     }
 
-    public void refresh(Ds3Common ds3Common) {
+    public void refresh(final Ds3Common ds3Common) {
         this.ds3Common = ds3Common;
         if (super.getValue() != null) {
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(super.getValue().getFullName());

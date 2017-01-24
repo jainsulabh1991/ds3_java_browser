@@ -2,11 +2,8 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetServiceRequest;
 import com.spectralogic.ds3client.commands.GetServiceResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
@@ -20,7 +17,6 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -33,7 +29,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,7 +199,7 @@ public class ParseJobInterruptionMap {
     }
 
 
-    public static void cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, Session session) {
+    public static void cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Session session) {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
         if (tasks.size() != 0) {
             final Task cancelAllRunningJobs = new Task() {

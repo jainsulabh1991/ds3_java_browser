@@ -1,8 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobChunksReadyForClientProcessingSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobChunksReadyForClientProcessingSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -31,7 +29,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
     private final Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJob.class);
@@ -112,7 +109,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                     try {
                         updateMessage("No available chunks to transfer. Trying again in " +retryTimeRemaining+ "seconds");
                         Thread.sleep(1000);
-                    }catch (Exception e){
+                    }catch (final Exception e){
                         LOG.error("Exception in attachWaitingForChunksListener"+ e.getMessage());
                     }
                 }

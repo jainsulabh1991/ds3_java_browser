@@ -9,7 +9,6 @@ import com.spectralogic.ds3client.commands.spectrads3.GetSystemInformationSpectr
 import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import javafx.beans.property.BooleanProperty;

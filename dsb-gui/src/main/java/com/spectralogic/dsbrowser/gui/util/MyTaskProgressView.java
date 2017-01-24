@@ -1,7 +1,5 @@
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.spectralogic.dsbrowser.gui.Ds3JobTask;
-import impl.org.controlsfx.skin.TaskProgressViewSkin;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -22,7 +20,7 @@ public class MyTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
     public MyTaskProgressView() {
         getStyleClass().add("task-progress-view");
 
-        EventHandler<WorkerStateEvent> taskHandler = evt -> {
+        final EventHandler<WorkerStateEvent> taskHandler = evt -> {
             if (evt.getEventType().equals(
                     WorkerStateEvent.WORKER_STATE_SUCCEEDED)
                     || evt.getEventType().equals(
@@ -35,15 +33,15 @@ public class MyTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
 
         getTasks().addListener(new ListChangeListener<Task<?>>() {
             @Override
-            public void onChanged(Change<? extends Task<?>> c) {
+            public void onChanged(final Change<? extends Task<?>> c) {
                 while (c.next()) {
                     if (c.wasAdded()) {
-                        for (Task<?> task : c.getAddedSubList()) {
+                        for (final Task<?> task : c.getAddedSubList()) {
                             task.addEventHandler(WorkerStateEvent.ANY,
                                     taskHandler);
                         }
                     } else if (c.wasRemoved()) {
-                        for (Task<?> task : c.getRemoved()) {
+                        for (final Task<?> task : c.getRemoved()) {
                             task.removeEventHandler(WorkerStateEvent.ANY,
                                     taskHandler);
                         }
@@ -106,7 +104,7 @@ public class MyTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
      *
      * @param factory an optional graphic factory
      */
-    public final void setGraphicFactory(Callback<T, Node> factory) {
+    public final void setGraphicFactory(final Callback<T, Node> factory) {
         graphicFactoryProperty().set(factory);
     }
 }
