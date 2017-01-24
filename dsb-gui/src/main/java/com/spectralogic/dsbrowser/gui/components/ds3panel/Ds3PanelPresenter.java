@@ -189,18 +189,23 @@ public class Ds3PanelPresenter implements Initializable {
             final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
             workers.execute(backgroundTask);
             // open default session when DSB launched
-            final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
-            if (defaultSession.size() == 1) {
-                final SavedSession savedSession = defaultSession.get(0);
-                final NewSessionModel newModel = new NewSessionModel();
-                newModel.setSessionName(savedSession.getName());
-                newModel.setDefaultSession(true);
-                newModel.setAccessKey(savedSession.getCredentials().getAccessId());
-                newModel.setSecretKey(savedSession.getCredentials().getSecretKey());
-                newModel.setEndpoint(savedSession.getEndpoint());
-                newModel.setPortno(savedSession.getPortNo());
-                newModel.setProxyServer(savedSession.getProxyServer());
-                store.addSession(newModel.toSession());
+            try {
+                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
+                if (defaultSession.size() == 1) {
+                    final SavedSession savedSession = defaultSession.get(0);
+                    final NewSessionModel newModel = new NewSessionModel();
+                    newModel.setSessionName(savedSession.getName());
+                    newModel.setDefaultSession(true);
+                    newModel.setAccessKey(savedSession.getCredentials().getAccessId());
+                    newModel.setSecretKey(savedSession.getCredentials().getSecretKey());
+                    newModel.setEndpoint(savedSession.getEndpoint());
+                    newModel.setPortno(savedSession.getPortNo());
+                    newModel.setProxyServer(savedSession.getProxyServer());
+                    store.addSession(newModel.toSession());
+                }
+            } catch (final Exception e) {
+                LOG.error("Encountered error fetching default session" + e.toString());
+                e.printStackTrace();
             }
 
         } catch (final Throwable e) {
@@ -1057,7 +1062,7 @@ public class Ds3PanelPresenter implements Initializable {
                 if (!selectedItems.isEmpty()) {
                     for (int i = 0; i < selectedItems.size(); i++) {
                         for (int j = 0; j < selectedItems.size(); j++) {
-                            if ( selectedItems.get(i) == null || selectedItems.get(i).getValue() == null){
+                            if (selectedItems.get(i) == null || selectedItems.get(i).getValue() == null) {
                                 Thread.sleep(1000);
 
                             }
