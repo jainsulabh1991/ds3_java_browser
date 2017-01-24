@@ -152,7 +152,6 @@ public class Ds3PanelPresenter implements Initializable {
     private Ds3Common ds3Common;
 
 
-
     @Inject
     private SavedSessionStore savedSessionStore;
 
@@ -189,10 +188,9 @@ public class Ds3PanelPresenter implements Initializable {
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
             workers.execute(backgroundTask);
-
             // open default session when DSB launched
             final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item -> item.getDefaultSession().equals(true)).collect(Collectors.toList());
-            if(defaultSession.size()==1) {
+            if (defaultSession.size() == 1) {
                 SavedSession savedSession = defaultSession.get(0);
                 NewSessionModel newModel = new NewSessionModel();
                 newModel.setSessionName(savedSession.getName());
@@ -391,7 +389,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 ds3TreeTableView1.getSelectionModel().getSelectedItems().size() + " item(s) selected";
                         getPaneItems().setVisible(true);
                         getPaneItems().setText(info);
-                        if (values.size() == 0 ) {
+                        if (values.size() == 0) {
                             ds3PathIndicator.setText("");
                             capacityLabel.setVisible(false);
                             infoLabel.setVisible(false);
@@ -996,6 +994,11 @@ public class Ds3PanelPresenter implements Initializable {
                     ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
                     //for number of files and folders
                     FilesCountModel filesCountModel = itemsTask.getValue();
+                    if (null == filesCountModel) {
+                        ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                        ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
+                        return;
+                    }
                     String infoMessage = "Contains " + filesCountModel.getNoOfFolders()
                             + " folders and " + filesCountModel.getNoOfFiles() + " files";
                     if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
@@ -1052,6 +1055,23 @@ public class Ds3PanelPresenter implements Initializable {
                     selectedItems.add(root);
                 }
                 if (!selectedItems.isEmpty()) {
+                    for (int i = 0; i < selectedItems.size(); i++) {
+                        for (int j = 0; j < selectedItems.size(); j++) {
+                            if ( selectedItems.get(i) == null || selectedItems.get(i).getValue() == null){
+                                Thread.sleep(1000);
+
+                            }
+                            if (null != selectedItems.get(i).getValue() && selectedItems.get(i).getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                                if (i != j && selectedItems.get(j).getValue().getBucketName()
+                                        .equals(selectedItems.get(i).getValue().getBucketName())) {
+                                    return null;
+                                }
+                            } else if (i != j && selectedItems.get(j).getValue().getFullName().contains(selectedItems.get(i).getValue().getFullName())
+                                    && selectedItems.get(j).getValue().getBucketName().equals(selectedItems.get(i).getValue().getBucketName())) {
+                                return null;
+                            }
+                        }
+                    }
                     selectedItems.stream().forEach(item -> {
                         if (null != item && null != item.getValue()) {
                             if (item.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {

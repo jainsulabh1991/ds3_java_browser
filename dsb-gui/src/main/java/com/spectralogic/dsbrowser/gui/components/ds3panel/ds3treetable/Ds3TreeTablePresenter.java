@@ -38,6 +38,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
@@ -561,6 +562,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                         event.consume();
                     }
             );
+
+
+
             row.setOnMouseClicked(event -> {
                 if (event.isControlDown() || event.isShiftDown()) {
                     if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
@@ -569,6 +573,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         ds3TreeTable.getSelectionModel().select(row.getIndex());
                     } else {
                         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                        final int selectedSize =  ds3TreeTable.getSelectionModel().getSelectedItems().size();
                         ds3TreeTable.getSelectionModel().clearSelection(row.getIndex());
                         rowNameList.remove(row.getTreeItem().getValue().getName());
                         manageItemsCount(row.getTreeItem());
@@ -775,6 +780,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
         });
     }
+    
 
     private void manageItemsCount(TreeItem<Ds3TreeTableValue> selectedItem) {
         if (ds3TreeTable.getSelectionModel().getSelectedItems().size() == 1
