@@ -248,6 +248,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     Platform.runLater(() -> {
                                         ds3TreeTable.getSelectionModel().clearSelection();
                                         ds3PanelPresenter.getDs3PathIndicator().setText("");
+                                        ds3PanelPresenter.getDs3PathIndicatorTooltip().setText("");
                                     });
 
                                 } else {
@@ -336,7 +337,13 @@ public class Ds3TreeTablePresenter implements Initializable {
                     String path = selectedItem.getValue().getFullName();
                     if (selectedItem.getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                         // loadMore(selectedItem);
-                    } else {
+                    }
+                    else if(ds3TreeTable.getSelectionModel().getSelectedItems().size()>1) {
+                        path = "";
+                        ds3PanelPresenter.getDs3PathIndicator().setText(path);
+                        ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(path);
+                    }
+                    else {
                         if (!selectedItem.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
                             path = selectedItem.getValue().getBucketName() + "/" + path;
                         ds3PanelPresenter.getDs3PathIndicator().setText(path);
@@ -927,6 +934,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                             Platform.runLater(() -> {
                                 ds3TreeTable.getSelectionModel().clearSelection();
                                 ds3PanelPresenter.getDs3PathIndicator().setText("");
+                                ds3PanelPresenter.getDs3PathIndicatorTooltip().setText("");
                             });
 
                         } else {
@@ -1040,6 +1048,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 DeleteFilesPopup.show(task, null, this);
                 refreshTreeTableView();
                 ds3PanelPresenter.getDs3PathIndicator().setText("");
+                ds3PanelPresenter.getDs3PathIndicatorTooltip().setText("");
             }
         }
     }

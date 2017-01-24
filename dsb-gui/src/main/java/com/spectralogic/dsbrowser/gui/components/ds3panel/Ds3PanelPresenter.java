@@ -264,6 +264,7 @@ public class Ds3PanelPresenter implements Initializable {
         } else if (null != ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent()) {
             if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent().getValue()) {
                 getDs3PathIndicator().setText("");
+               getDs3PathIndicatorTooltip().setText("");
             }
             ds3Common.getDs3PanelPresenter().getTreeTableView()
                     .setRoot(ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent());
@@ -282,6 +283,7 @@ public class Ds3PanelPresenter implements Initializable {
         } else {
             Platform.runLater(() -> {
                 getDs3PathIndicator().setText("");
+               getDs3PathIndicatorTooltip().setText("");
             });
         }
     }
@@ -360,6 +362,7 @@ public class Ds3PanelPresenter implements Initializable {
                             e.printStackTrace();
                         }
                         ds3PathIndicator.setText("");
+                        ds3PathIndicatorTooltip.setText("");
                         deepStorageBrowserPresenter.logText(newSession.getSessionName() + "-" + newSession.getEndpoint() + " closed.", LogType.ERROR);
                         if (store.size() == 0) {
                             addNewTab.setTooltip(null);
@@ -397,6 +400,7 @@ public class Ds3PanelPresenter implements Initializable {
                             getPaneItems().setText(info);
                             if (values.size() == 0) {
                                 ds3PathIndicator.setText("");
+                                ds3PathIndicatorTooltip.setText("");
                                 capacityLabel.setVisible(false);
                                 infoLabel.setVisible(false);
                             } else {
@@ -409,8 +413,10 @@ public class Ds3PanelPresenter implements Initializable {
                                     final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
                                     if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                                         ds3PathIndicator.setText(value.getBucketName() + "/" + value.getFullName());
+                                        ds3PathIndicatorTooltip.setText(value.getBucketName() + "/" + value.getFullName());
                                     } else {
                                         ds3PathIndicator.setText(value.getBucketName());
+                                        ds3PathIndicatorTooltip.setText(value.getBucketName());
                                     }
                                     final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTableView1.getSelectionModel().getSelectedItem();
                                     calculateFiles(ds3TreeTableView1);
@@ -418,6 +424,7 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                         } else {
                             ds3PathIndicator.setText("");
+                            ds3PathIndicatorTooltip.setText("");
                             capacityLabel.setVisible(false);
                             infoLabel.setVisible(false);
                             getPaneItems().setVisible(false);
@@ -699,6 +706,7 @@ public class Ds3PanelPresenter implements Initializable {
             // values.stream().forEach(file -> refresh(file.getParent()));
             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
             ds3PathIndicator.setText("");
+            ds3PathIndicatorTooltip.setText("");
         }
     }
 
@@ -743,6 +751,7 @@ public class Ds3PanelPresenter implements Initializable {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         ds3TreeTableView.getSelectionModel().clearSelection();
         ds3PathIndicator.setText("");
+        ds3PathIndicatorTooltip.setText("");
     }
 
     private void ds3NewFolder() {
@@ -884,6 +893,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     public void filterChanged(final String newValue) {
         ds3PathIndicator.setText("Searching..");
+        ds3PathIndicatorTooltip.setText("Searching..");
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         final Session session = getSession();
         if (newValue.isEmpty()) {
