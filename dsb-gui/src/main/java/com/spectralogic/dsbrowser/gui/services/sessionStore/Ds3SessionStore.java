@@ -29,12 +29,12 @@ public class Ds3SessionStore implements SessionStore {
     }
 
     @Override
-    public boolean isEmpty() {
-        return sessions.isEmpty();
+    public int size() {
+        return sessions.size();
     }
 
     @Override
-    public int size() {
-        return sessions.size();
+    public boolean isEmpty() {
+        return sessions.isEmpty();
     }
 }

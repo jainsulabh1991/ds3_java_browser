@@ -1012,7 +1012,7 @@ public class Ds3PanelPresenter implements Initializable {
                         return;
                     }
                     final String infoMessage = "Contains " + filesCountModel.getNoOfFolders()
-                            + " folders and " + filesCountModel.getNoOfFiles() + " files";
+                            + " folder(s) and " + filesCountModel.getNoOfFiles() + " file(s)";
                     if (selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                         if (filesCountModel.getNoOfFiles() == 0 && filesCountModel.getNoOfFolders() == 0) {
                             ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Contains no item");
