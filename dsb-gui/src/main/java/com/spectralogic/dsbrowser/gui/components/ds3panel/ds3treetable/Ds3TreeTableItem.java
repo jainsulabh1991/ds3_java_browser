@@ -226,6 +226,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 Platform.runLater(() -> {
                     final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
                     final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).filter(distinctByKey(p -> p.getValue().getFullName())).collect(GuavaCollectors.immutableList());
+                    partialResults.get().clear();
                     partialResults.get().addAll(directoryItems);
                     partialResults.get().addAll(fileItems);
 //                    partialResults.get().stream().sorted((o1, o2) ->
